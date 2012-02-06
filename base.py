@@ -20,11 +20,11 @@ MAIN_LOGFILE = '/var/tmp/xbee_base.log'
 logger = None
 
 
-def send_nimbits(value):
+def send_nimbits(name, value):
     # create dictionary
     data = {"email":"vadimk@gmail.com",
             "secret":"a8909970-e892-4bc4-afb8-7330d4d6ddc6",
-            "point":"temp",
+            "point":name,
             "value":value}
 
     headers = {"Content-type": "application/x-www-form-urlencoded",
@@ -112,7 +112,8 @@ def main():
 
             # send to nimbits every 5 min
             if send_to_nimbits and (time.time() - time_track) > 300:
-                send_nimbits(temp_C)
+                send_nimbits('temp', temp_C)
+                send_nimbits('Vbatt', adc0)
                 time_track = time.time()
 
             report = 'packet_size=%d adc0=%.3f adc1=%.3f temp=%.1f C' % (
