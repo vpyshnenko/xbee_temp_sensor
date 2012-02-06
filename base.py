@@ -102,6 +102,7 @@ def main():
         while True:
             pkt = pkt_reader.next()
 
+            adc0 = pkt.get_adc(0)
             adc1 = pkt.get_adc(1)
             temp_C = tmp36.get_t_from_adc(adc1)
 
@@ -114,7 +115,8 @@ def main():
                 send_nimbits(temp_C)
                 time_track = time.time()
 
-            report = 'packet_size=%d adc1=%.3f temp=%.1f C' % (pkt.packet_size, adc1, temp_C)
+            report = 'packet_size=%d adc0=%.3f adc1=%.3f temp=%.1f C' % (
+                pkt.packet_size, adc0, adc1, temp_C)
 
             if console:
                 print report
