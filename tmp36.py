@@ -13,12 +13,11 @@ API for TMP36 temperature sensor
 
 import numpy
 
-Vref = 2500.0  # MCP1525
 V1 = 750.0
 T1 = 25.0
 K = 10
 
-def get_t_from_adc(code):
+def get_t_from_adc(Vmv):
     """
     returns temperature C from ADC value. 
 
@@ -28,5 +27,4 @@ def get_t_from_adc(code):
     1023    Vref
     
     """
-    Vmv = code * Vref / 1023 
     return T1 + (Vmv - V1) / K

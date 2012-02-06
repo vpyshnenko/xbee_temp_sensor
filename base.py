@@ -36,7 +36,8 @@ def send_nimbits(name, value):
         conn.request("POST", "/service/currentvalue", urllib.urlencode(data), headers)
 
         response = conn.getresponse()
-        logger.info('Nimbits response: %s %s' % (response.status, response.reason))
+        logger.info('Nimbits data point "%s": response: %s %s' % (
+                name, response.status, response.reason))
     except socket.error, e:
         logger.error('%s: nimbits socket error: %s' % (datetime.datetime.now(), e))
 
@@ -116,7 +117,7 @@ def main():
                 send_nimbits('Vbatt', adc0)
                 time_track = time.time()
 
-            report = 'packet_size=%d adc0=%.3f adc1=%.3f temp=%.1f C' % (
+            report = 'packet_size=%d adc0=%.3f mV adc1=%.3f mV temp=%.1f C' % (
                 pkt.packet_size, adc0, adc1, temp_C)
 
             if console:

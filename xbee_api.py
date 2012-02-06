@@ -5,6 +5,9 @@ import serial
 
 logger = logging.getLogger('default')
 
+Vref = 2500.0  # MCP1525
+
+
 # Sample packet:
 # 7e 0 e 83 56 78 3f 0 1 7 0 1 0 3 ff 3 ff 62 
 # 
@@ -127,8 +130,9 @@ class SerialIOPacket(object):
                             frame[frame_byte], frame[frame_byte+1])
                         frame_byte += 2
 
+            # store ADC channel data in mV
             for adc_idx in range(0, len(self.a_channels_enabled)):
-                self.a_channels_data[adc_idx] = float(adc_data[adc_idx]) / self.num_samples
+                self.a_channels_data[adc_idx] = float(adc_data[adc_idx]) / self.num_samples * Vref / 1024
         except IndexError:
             logger.error('Invalid XBee API frame: "%x"' % frame)
 
