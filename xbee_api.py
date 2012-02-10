@@ -5,8 +5,8 @@ import serial
 
 logger = logging.getLogger('default')
 
-Vref = 2500.0  # MCP1525
-
+# Vref = 2500.0  # MCP1525
+Vref = 2048   # LM4040D20  (actually measured 2036.4 mV, 0.5% difference)
 
 # Sample packet:
 # 7e 0 e 83 56 78 3f 0 1 7 0 1 0 3 ff 3 ff 62 
