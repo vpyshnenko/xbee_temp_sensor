@@ -172,9 +172,9 @@ if __name__ == '__main__':
 
 
     chunk_num = 1
-    chunk_generator = chunker(data_list, 20)
+    chunk_generator = chunker(data_list, 5)
     for chunk in chunk_generator:
-        print 'Uploading chunk #{0}'.format(chunk_num)
+        print 'chunk #{0}: {1}'.format(chunk_num, chunk)
         pachube_feed.datapoint_create('Vbatt', chunk)
         chunk_num += 1
         time.sleep(1)
