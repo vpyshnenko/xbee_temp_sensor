@@ -157,14 +157,21 @@ def main():
             # temp_F = 32 + temp_C * 5 / 9
 
             # send to data_logger every 5 min
-            if time.time() >= data_logger_update_time:
+	    time_now = time.time()
+            if time_now >= data_logger_update_time:
                 if send_to_data_logger:
                     pachube_feed.datastream_update({'temp': temp_C, 'Vbatt': adc0})
                 data_logger_update_time += DATA_LOGGER_UPDATE_INTERVAL
+		if time_now > data_logger_update_time:
+		    # this happens if we got stuck in pkt_reader.next() for a long time
+		    # and data_logger_update_time is in the past
+		    data_logger_update_time = time_now + DATA_LOGGER_UPDATE_INTERVAL
 
-            if time.time() >= battery_log_time:
+            if time_now >= battery_log_time:
                 record_battery_v(battery_file, adc0)
                 battery_log_time += BATTERY_LOG_INTERVAL
+		if time_now > battery_log_time:
+		    battery_log_time = time_now + BATTERY_LOG_INTERVAL
 
             report = 'packet_size={0} adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C'.format(
                 pkt.packet_size, adc0, adc1, temp_C)
