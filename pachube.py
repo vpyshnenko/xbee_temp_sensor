@@ -108,7 +108,8 @@ class PachubeFeed(object):
 
         except socket.error, e:
             logger.error('%s: Pachube socket error: %s' % (datetime.datetime.now(), e))
-
+        except httplib.HTTPException, e:
+            logger.error('%s: Pachube http error: %s' % (datetime.datetime.now(), e))
 
     def datapoint_create(self, datastream, data):
         """
