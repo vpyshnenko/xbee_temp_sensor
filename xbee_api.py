@@ -134,7 +134,7 @@ class SerialIOPacket(object):
             for adc_idx in range(0, len(self.a_channels_enabled)):
                 self.a_channels_data[adc_idx] = float(adc_data[adc_idx]) / self.num_samples * Vref / 1024
         except IndexError:
-            logger.error('Invalid XBee API frame: "%x"' % frame)
+            logger.error('Invalid XBee API frame: "{0}"'.format(frame))
 
 
     def get_adc(self, idx):
