@@ -107,7 +107,7 @@ def main():
             # causes LockTimeout
             global_lock.acquire(timeout=0)
         except lockfile.AlreadyLocked:
-            logger.error('Another copy of this program is in progress')
+            logger.error('Another copy of this program is running')
             sys.exit(1)
 
         atexit.register(cleanup)
