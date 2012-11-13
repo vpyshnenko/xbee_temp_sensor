@@ -132,7 +132,8 @@ class SerialIOPacket(object):
 
             # store ADC channel data in mV
             for adc_idx in range(0, len(self.a_channels_enabled)):
-                self.a_channels_data[adc_idx] = float(adc_data[adc_idx]) / self.num_samples * Vref / 1024
+                self.a_channels_data[adc_idx] = (
+                    float(adc_data[adc_idx]) / self.num_samples * Vref / 1024)
         except IndexError:
             logger.error('Invalid XBee API frame: "{0}"'.format(frame))
 
@@ -144,7 +145,10 @@ class SerialIOPacket(object):
         res = []
         # res.append('frame: %s' % ' '.join(['%0x' % x for x in self.frame]))
         res.append('API data packet: ')
-        res.append('cmd=%0x' % self.cmd)
+        if self.cmd is not None:
+            res.append('cmd=%0x' % cmd)
+        else:
+            res.append('cmd=None')
         res.append('length=%d' % self.length)
         res.append('address=%s' % self.address)
         res.append('rssi=%d' % self.rssi)
