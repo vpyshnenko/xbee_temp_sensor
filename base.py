@@ -25,19 +25,12 @@ import lockfile
 import xbee_api
 import thermistor
 import tmp36
-import pachube
 
 
 MAIN_LOGFILE = '/var/tmp/xbee_base.log'
 BATTERY_DATA_FILE = '/var/tmp/battery.log'
 DATA_LOGGER_UPDATE_INTERVAL = 300  # 5 min
 BATTERY_LOG_INTERVAL = 1800    # 30 min
-
-PACHUBE_FEED_ID = None
-PACHUBE_PRIVATE_FEED_KEY = None
-
-NIMBITS_EMAIL = None
-NIMBITS_SECRET = None
 
 logger = None
 global_lock = lockfile.FileLock('/var/lock/xbee_sensor_monitor')
@@ -150,11 +143,6 @@ def main():
         data_logger_update_time = time.time()
         battery_log_time = time.time()
 
-        if PACHUBE_FEED_ID and PACHUBE_PRIVATE_FEED_KEY:
-            pachube_feed = pachube.PachubeFeed(feed_id=PACHUBE_FEED_ID,key=PACHUBE_PRIVATE_FEED_KEY)
-        else:
-            pachube_feed = None
-
         pkt_reader = xbee_api.read_packet(s)
         while True:
             pkt = pkt_reader.next()
@@ -171,8 +159,6 @@ def main():
                 # send to data_logger every 5 min
                 time_now = time.time()
                 if time_now >= data_logger_update_time:
-                    if send_to_data_logger and pachube_feed:
-                        pachube_feed.datastream_update({'temp': temp_C, 'Vbatt': adc0})
                     data_logger_update_time += DATA_LOGGER_UPDATE_INTERVAL
                     if time_now > data_logger_update_time:
                         # this happens if we got stuck in pkt_reader.next() for a long time
