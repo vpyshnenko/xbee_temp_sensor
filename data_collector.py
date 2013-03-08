@@ -10,39 +10,23 @@ import datetime
 import httplib
 import logging
 import serial
-import socket
-import urllib
 import sys
 import time
 import numbers
-import pdb
 import lockfile
 
 import xbee_api
 import tmp36
 
-
-MAIN_LOGFILE = '/var/tmp/xbee_base.log'
-BATTERY_DATA_FILE = '/var/tmp/battery.log'
-DATA_LOGGER_UPDATE_INTERVAL = 300  # 5 min
-BATTERY_LOG_INTERVAL = 1800    # 30 min
+MAIN_LOGFILE = 'data_collector.log'
+DATA_FILE = 'data_collector.csv'
 
 logger = None
 global_lock = lockfile.FileLock('/var/lock/xbee_sensor_monitor')
 
-
 def cleanup():
     if global_lock.is_locked():
         global_lock.release()
-
-
-def record_battery_v(battery_file, value):
-    assert isinstance(value, numbers.Real)
-    now = datetime.datetime.now()
-    battery_log_line = '{0} {1:.3f}\n'.format(now.strftime('%Y-%m-%d %H:%M:%S'),
-                                              value)
-    battery_file.write(battery_log_line)
-    battery_file.flush()
 
 
 def usage():
@@ -66,7 +50,6 @@ def main():
     logger = logging.getLogger('default')
 
     try:
-
         try:
             opts, args = getopt.getopt(sys.argv[1:], 's:c', [])
 
@@ -105,10 +88,7 @@ def main():
 
         s.open()
 
-        battery_file = file(BATTERY_DATA_FILE, 'a')
-
-        data_logger_update_time = time.time()
-        battery_log_time = time.time()
+        data_file = file(BATTERY_DATA_FILE, 'a')
 
         pkt_reader = xbee_api.read_packet(s)
         while True:
@@ -119,21 +99,7 @@ def main():
                 adc1 = float(pkt.get_adc(1))
                 temp_C = tmp36.get_t_from_adc(adc1)
 
-                # send to data_logger every 5 min
                 time_now = time.time()
-                if time_now >= data_logger_update_time:
-                    data_logger_update_time += DATA_LOGGER_UPDATE_INTERVAL
-                    if time_now > data_logger_update_time:
-                        # this happens if we got stuck in pkt_reader.next() for a long time
-                        # and data_logger_update_time is in the past
-                        data_logger_update_time = time_now + DATA_LOGGER_UPDATE_INTERVAL
-
-                if time_now >= battery_log_time:
-                    record_battery_v(battery_file, adc0)
-                    battery_log_time += BATTERY_LOG_INTERVAL
-                    if time_now > battery_log_time:
-                        battery_log_time = time_now + BATTERY_LOG_INTERVAL
-
                 report = 'packet_size={0} adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C'.format(
                     pkt.packet_size, adc0, adc1, temp_C)
 
@@ -141,6 +107,10 @@ def main():
                     print report
                 else:
                     logger.info(report)
+
+                    data_file.write(str(pkt))
+                    data_file.flush()
+                    
             except IndexError, e:
                 # I get this from pkt.get_adc() when packet is broken
                 logger.error('Broken XBee packet: "{0}"'.format(pkt))
