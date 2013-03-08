@@ -49,9 +49,6 @@ import time
 import re
 import socket
 
-
-PACHUBE_PRIVATE_FEED_KEY = 'WEUcLNOl6Myth65O73einj2inPCSAKw2MCtHc1l5QlI5UT0g'
-
 logger = logging.getLogger('default')
 
 
@@ -72,7 +69,7 @@ def chunker(list_of_things, chunk_size):
 
 class PachubeFeed(object):
 
-    def __init__(self, feed_id, key=PACHUBE_PRIVATE_FEED_KEY):
+    def __init__(self, feed_id, key):
         self.feed_key = key
         self.feed_id = feed_id
         self.feed_url = "/v2/feeds/{0}".format(self.feed_id)
