@@ -20,9 +20,10 @@ import tmp36
 
 MAIN_LOGFILE = 'data_collector.log'
 DATA_FILE = 'data_collector.csv'
+LOCK_FILE='xbee_sensor_monitor.lock'
 
 logger = None
-global_lock = lockfile.FileLock('/var/lock/xbee_sensor_monitor')
+global_lock = lockfile.FileLock(LOCK_FILE)
 
 def cleanup():
     if global_lock.is_locked():
