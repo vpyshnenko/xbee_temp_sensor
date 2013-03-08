@@ -36,6 +36,9 @@ BATTERY_LOG_INTERVAL = 1800    # 30 min
 PACHUBE_FEED_ID = None
 PACHUBE_PRIVATE_FEED_KEY = None
 
+NIMBITS_EMAIL = None
+NIMBITS_SECRET = None
+
 logger = None
 global_lock = lockfile.FileLock('/var/lock/xbee_sensor_monitor')
 
@@ -45,13 +48,12 @@ def cleanup():
         global_lock.release()
 
 
-
 def send_nimbits(name, value):
     assert isinstance(value, numbers.Real)
 
     # create dictionary
-    data = {"email":"vadimk@gmail.com",
-            "secret":"a8909970-e892-4bc4-afb8-7330d4d6ddc6",
+    data = {"email":NIMBITS_EMAIL,
+            "secret":NIMBITS_SECRET,
             "point":name,
             "value":'{0:.3f}'.format(value)}
 
