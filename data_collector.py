@@ -19,7 +19,6 @@ import pdb
 import lockfile
 
 import xbee_api
-import thermistor
 import tmp36
 
 
@@ -119,10 +118,6 @@ def main():
                 adc0 = float(pkt.get_adc(0))
                 adc1 = float(pkt.get_adc(1))
                 temp_C = tmp36.get_t_from_adc(adc1)
-
-                # res = thermistor.get_res_from_adc(adc1)
-                # temp_C = thermistor.get_t(res)
-                # temp_F = 32 + temp_C * 5 / 9
 
                 # send to data_logger every 5 min
                 time_now = time.time()
