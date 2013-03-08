@@ -1,9 +1,14 @@
-#!/usr/bin/python
+#!/usr/bin/env python
 #
 #
 
 import atexit
-import json
+
+try:
+    import json
+except ImportError:
+    import simplejson as json
+
 import getopt
 import datetime
 import httplib
