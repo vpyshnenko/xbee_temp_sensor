@@ -29,6 +29,9 @@ global_lock = lockfile.FileLock(LOCK_FILE)
 VREF = 1235 #LM385-1.2
 
 def cleanup():
+    global logger
+    if logger:
+        logger.info("Stop")
     if global_lock.is_locked():
         global_lock.release()
 
@@ -38,6 +41,7 @@ def usage():
 
 -s port -- use serial port <port>. Default is /dev/ttyUSB0
 -c -- output packet log to console
+-d -- debug mode (more logging)
 
 """  % sys.argv[0]
 
@@ -58,7 +62,7 @@ def main():
 
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 's:c', [])
+            opts, args = getopt.getopt(sys.argv[1:], 's:cd', [])
 
         except getopt.GetoptError:
             usage()
@@ -82,6 +86,8 @@ def main():
                 serial_port = a
             elif o in ['-c']:
                 console = True
+            elif o in ['-d']:
+                logger.setLevel(logging.DEBUG)
             else:
                 usage()
                 sys.exit(1)
@@ -92,6 +98,8 @@ def main():
                                       baudrate=9600, bytesize=8, parity='N', stopbits=1,
                                       timeout=120,
                                       rtscts=1)
+
+        logger.info("Starting collection")
 
         data_file = file(DATA_FILE, 'a')
 
@@ -106,15 +114,14 @@ def main():
                 battery_V = battery.get_battery_from_adc(adc1)
 
                 time_now = time.time()
-                report = 'addr={0}, adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C Vcc={4:.3f} mV'.format(
+                report = 'addr={0}, T={1:.1f}C Vcc={2:.3f}mV'.format(
                     pkt.address,
-                    adc0, adc1,
                     temp_C, battery_V)
 
                 if console:
                     print report
                 else:
-                    logger.info(report)
+                    logger.debug(report)
 
                 csv_report = '{0},{1},{2:.3f},{3:.3f},{4:.1f},{5:.3f}\n'.format(
                     time.time(), pkt.address, adc0, adc1, temp_C, battery_V)
