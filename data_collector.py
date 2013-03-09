@@ -106,16 +106,18 @@ def main():
                 battery_V = battery.get_battery_from_adc(adc1)
 
                 time_now = time.time()
-                report = 'adc0={0:.3f} mV adc1={1:.3f} mV T={2:.1f} C Vcc={3:.3f} mV'.format(
-                    adc0, adc1, temp_C, battery_V)
+                report = 'addr={0}, adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C Vcc={4:.3f} mV'.format(
+                    pkt.address,
+                    adc0, adc1,
+                    temp_C, battery_V)
 
                 if console:
                     print report
                 else:
                     logger.info(report)
 
-                csv_report = '{0},{1:.3f},{2:.3f},{3:.1f},{4:.3f}\n'.format(
-                    time.time(),adc0, adc1, temp_C, battery_V)
+                csv_report = '{0},{1},{2:.3f},{3:.3f},{4:.1f},{5:.3f}\n'.format(
+                    time.time(), pkt.address, adc0, adc1, temp_C, battery_V)
 
                 data_file.write(csv_report)
                 data_file.flush()
