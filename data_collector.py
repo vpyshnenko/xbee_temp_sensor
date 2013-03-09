@@ -32,9 +32,9 @@ def cleanup():
 
 def usage():
     print """
-%s [-s /dev/ttyS0]
+%s [-s /dev/ttyUSB0]
 
--s port -- use serial port <port>. Default is /dev/ttyS0
+-s port -- use serial port <port>. Default is /dev/ttyUSB0
 
 """  % sys.argv[0]
 
@@ -68,7 +68,7 @@ def main():
 
         atexit.register(cleanup)
 
-        serial_port= '/dev/ttyS0'
+        serial_port= '/dev/ttyUSB0'
         console = False
 
         for o, a in opts:

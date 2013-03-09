@@ -146,7 +146,7 @@ class SerialIOPacket(object):
         # res.append('frame: %s' % ' '.join(['%0x' % x for x in self.frame]))
         res.append('API data packet: ')
         if self.cmd is not None:
-            res.append('cmd=%0x' % cmd)
+            res.append('cmd=%0x' % self.cmd)
         else:
             res.append('cmd=None')
         res.append('length=%d' % self.length)
