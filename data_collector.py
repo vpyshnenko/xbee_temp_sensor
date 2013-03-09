@@ -25,19 +25,24 @@ LOCK_FILE='xbee_sensor_monitor.lock'
 logger = None
 global_lock = lockfile.FileLock(LOCK_FILE)
 
+VREF = 1235 #LM385-1.2
+
 def cleanup():
     if global_lock.is_locked():
         global_lock.release()
-
 
 def usage():
     print """
 %s [-s /dev/ttyUSB0]
 
 -s port -- use serial port <port>. Default is /dev/ttyUSB0
+-c -- output packet log to console
 
 """  % sys.argv[0]
 
+def get_adc_v(pkt, adc_idx):
+    "Retruns ADC value in volts"
+    return float(pkt.get_adc(adc_idx)/pkt.num_samples * VREF / 1024)
 
 def main():
     global logger
@@ -94,9 +99,9 @@ def main():
             pkt = pkt_reader.next()
 
             try:
-                adc0 = float(pkt.get_adc(0))
-                adc1 = float(pkt.get_adc(1))
-                temp_C = tmp36.get_t_from_adc(adc1)
+                adc0 = float(get_adc_v(pkt,0))
+                adc1 = float(get_adc_v(pkt,1))
+                temp_C = tmp36.get_t_from_adc(adc0)
 
                 time_now = time.time()
                 report = 'packet_size={0} adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C'.format(
@@ -117,7 +122,6 @@ def main():
 
     except serial.SerialException,e:
         print e
-
 
 if __name__ == '__main__':
     main()
