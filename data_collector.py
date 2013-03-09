@@ -17,6 +17,7 @@ import lockfile
 
 import xbee_api
 import tmp36
+import battery
 
 MAIN_LOGFILE = 'data_collector.log'
 DATA_FILE = 'data_collector.csv'
@@ -102,18 +103,22 @@ def main():
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
                 temp_C = tmp36.get_t_from_adc(adc0)
+                battery_V = battery.get_battery_from_adc(adc1)
 
                 time_now = time.time()
-                report = 'packet_size={0} adc0={1:.3f} mV adc1={2:.3f} mV T={3:.1f} C'.format(
-                    pkt.packet_size, adc0, adc1, temp_C)
+                report = 'adc0={0:.3f} mV adc1={1:.3f} mV T={2:.1f} C Vcc={3:.3f} mV'.format(
+                    adc0, adc1, temp_C, battery_V)
 
                 if console:
                     print report
                 else:
                     logger.info(report)
 
-                    data_file.write(str(pkt))
-                    data_file.flush()
+                csv_report = '{0},{1:.3f},{2:.3f},{3:.1f},{4:.3f}\n'.format(
+                    time.time(),adc0, adc1, temp_C, battery_V)
+
+                data_file.write(csv_report)
+                data_file.flush()
                     
             except IndexError, e:
                 # I get this from pkt.get_adc() when packet is broken
