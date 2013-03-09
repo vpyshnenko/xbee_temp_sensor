@@ -47,7 +47,7 @@ def usage():
 
 def get_adc_v(pkt, adc_idx):
     "Retruns ADC value in volts"
-    return float(pkt.get_adc(adc_idx)/pkt.num_samples * VREF / 1024)
+    return float(pkt.get_adc(adc_idx))/pkt.num_samples * VREF / 1024
 
 def main():
     global logger
@@ -114,9 +114,9 @@ def main():
                 battery_V = battery.get_battery_from_adc(adc1)
 
                 time_now = time.time()
-                report = 'addr={0}, T={1:.1f}C Vcc={2:.3f}mV'.format(
+                report = 'A={0} T={1:.1f}C V={2:.3f}V'.format(
                     pkt.address,
-                    temp_C, battery_V)
+                    temp_C, battery_V/1000.0)
 
                 if console:
                     print report

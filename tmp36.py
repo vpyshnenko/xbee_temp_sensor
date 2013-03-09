@@ -15,7 +15,7 @@ import numpy
 
 V1 = 750.0
 T1 = 25.0
-K = 10
+K = 10.0
 
 def get_t_from_adc(Vmv):
     """
