@@ -87,9 +87,7 @@ def main():
                                       timeout=120,
                                       rtscts=1)
 
-        s.open()
-
-        data_file = file(BATTERY_DATA_FILE, 'a')
+        data_file = file(DATA_FILE, 'a')
 
         pkt_reader = xbee_api.read_packet(s)
         while True:
