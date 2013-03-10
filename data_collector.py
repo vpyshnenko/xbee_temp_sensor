@@ -56,7 +56,7 @@ def main():
     logging.basicConfig(level=logging.INFO,
                         format=log_format,
                         filename=MAIN_LOGFILE,
-                        filemode='w')
+                        filemode='a')
 
     logger = logging.getLogger('default')
 
