@@ -20,7 +20,7 @@ import urllib2
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
 COSM_LOGFILE="cosm.log"
-MAX_DATAPOINTS=10 # Max number of datapoints per post. COSM limit is 500
+MAX_DATAPOINTS=300 # Max number of datapoints per post. COSM limit is 500
 DATA_FILE = 'data_collector.csv'
 
 def read_watermark(watermark_fname):
