@@ -18,6 +18,7 @@ import time
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
 COSM_LOGFILE="cosm.log"
+MAX_DATAPOINTS=100 # Max number of datapoints per post. COSM limit is 500
 
 def read_watermark(watermark_fname):
     log.error("Reading watermark file %s" % watermark_fname)
