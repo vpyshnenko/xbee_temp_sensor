@@ -20,8 +20,11 @@ import urllib2
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
 COSM_LOGFILE="cosm.log"
-MAX_DATAPOINTS=300 # Max number of datapoints per post. COSM limit is 500
+MAX_DATAPOINTS=490 # Max number of datapoints per post. COSM limit is 500
 DATA_FILE = 'data_collector.csv'
+
+# for debugging
+DRY_RUN=False
 
 def read_watermark(watermark_fname):
     log.info("Reading watermark file %s" % watermark_fname)
@@ -37,6 +40,8 @@ def read_watermark(watermark_fname):
         return 0
 
 def write_watermark(watermark_fname,w):
+    if DRY_RUN:
+        return
     log.info("Writing watermark file %s with value %s" % (watermark_fname,w))
     f=open(watermark_fname,"w")
     try:
@@ -54,6 +59,9 @@ def read_config(cfg_fname):
 
 def submit_datapoints(feed,datastream,key,csv):
     log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
+    if DRY_RUN:
+        print csv
+        return
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
     request.add_header('Host','api.cosm.com')
@@ -94,12 +102,13 @@ def main():
             c = string.strip(l).split(",")
             w=float(c[0])
             if w>watermark:
-                ts = datetime.datetime.fromtimestamp(w).isoformat('T')
+                #  ISO 8601 date
+                ts = datetime.datetime.utcfromtimestamp(int(w)).isoformat('T')+"Z"
                 t = c[4] # temp
                 v = c[5] # volts
                 ch = int(c[1]) # channel
-                temps+=string.join([ts,t],",") + "\n"
-                volts+=string.join([ts,v],",")+ "\n"
+                temps+=string.join([ts,t],",") + "\r\n"
+                volts+=string.join([ts,v],",")+ "\r\n"
                 n=n+1
                 if n==MAX_DATAPOINTS:
                     submit_datapoints(feed,ch,key,temps)
