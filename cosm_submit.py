@@ -13,12 +13,14 @@ It is using cosm.cfg which is JSON dictionary with following fields:
 import json
 import sys
 import logging
-import time
+import time,datetime
+import string
 
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
 COSM_LOGFILE="cosm.log"
 MAX_DATAPOINTS=100 # Max number of datapoints per post. COSM limit is 500
+DATA_FILE = 'data_collector.csv'
 
 def read_watermark(watermark_fname):
     log.error("Reading watermark file %s" % watermark_fname)
@@ -65,8 +67,16 @@ def main():
     watermark = read_watermark(WATERMARK_FILE % feed)
     log.info("Using watermark %s" % watermark)
 
-    print feed,key,watermark
-
+    f=open(DATA_FILE,"r")
+    try:
+        for l in f:
+            c = string.strip(l).split(",")
+            ts = datetime.datetime.fromtimestamp(float(c[0])).isoformat('T')
+            t = float(c[4])
+            v = float(c[5])
+            print ts,t,v
+    finally:
+        f.close()
 
 
 
