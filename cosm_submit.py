@@ -15,11 +15,12 @@ import sys
 import logging
 import time,datetime
 import string
+import urllib2
 
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
 COSM_LOGFILE="cosm.log"
-MAX_DATAPOINTS=100 # Max number of datapoints per post. COSM limit is 500
+MAX_DATAPOINTS=10 # Max number of datapoints per post. COSM limit is 500
 DATA_FILE = 'data_collector.csv'
 
 def read_watermark(watermark_fname):
@@ -51,9 +52,14 @@ def read_config(cfg_fname):
     finally:
         f.close()
 
-def submit_datapoints(feed,ch,key,csv):
-    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,ch))
-    pass
+def submit_datapoints(feed,datastream,key,csv):
+    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
+    opener = urllib2.build_opener(urllib2.HTTPHandler)
+    request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
+    request.add_header('Host','api.cosm.com')
+    request.add_header('Content-type','text/csv')
+    request.add_header('X-ApiKey', key)
+    url = opener.open(request)
 
 def main():
     global log
@@ -92,8 +98,8 @@ def main():
                 t = c[4] # temp
                 v = c[5] # volts
                 ch = int(c[1]) # channel
-                temps+=string.join([ts,t],",")
-                volts+=string.join([ts,v],",")
+                temps+=string.join([ts,t],",") + "\n"
+                volts+=string.join([ts,v],",")+ "\n"
                 n=n+1
                 if n==MAX_DATAPOINTS:
                     submit_datapoints(feed,ch,key,temps)
@@ -101,7 +107,10 @@ def main():
                     submit_datapoints(feed,ch+100,key,volts)
                     write_watermark(WATERMARK_FILE % feed,w)
                     watermark = w
+                    temps=""
+                    volts=""
                     n=0
+                
         if len(temps) or len(volts):
             if len(volts):
                 submit_datapoints(feed,ch+100,key,volts)
