@@ -23,7 +23,7 @@ MAX_DATAPOINTS=100 # Max number of datapoints per post. COSM limit is 500
 DATA_FILE = 'data_collector.csv'
 
 def read_watermark(watermark_fname):
-    log.error("Reading watermark file %s" % watermark_fname)
+    log.info("Reading watermark file %s" % watermark_fname)
     try:
         f=open(watermark_fname,"r")
         try:
@@ -32,8 +32,16 @@ def read_watermark(watermark_fname):
         finally:
             f.close()
     except:
-        log.warning("Error reading watermark file %s. Assuming 0" % CFG_FILE)
+        log.warning("Error reading watermark file %s. Assuming 0" % watermark_fname)
         return 0
+
+def write_watermark(watermark_fname,w):
+    log.info("Writing watermark file %s with value %s" % (watermark_fname,w))
+    f=open(watermark_fname,"w")
+    try:
+        json.dump({"maxtime":w},f)
+    finally:
+        f.close()
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)
@@ -42,7 +50,11 @@ def read_config(cfg_fname):
         return json.load(f)
     finally:
         f.close()
-        
+
+def submit_datapoints(feed,ch,key,csv):
+    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,ch))
+    pass
+
 def main():
     global log
 
@@ -50,7 +62,7 @@ def main():
     logging.basicConfig(level=logging.INFO,
                         format=log_format,
                         filename=COSM_LOGFILE,
-                        filemode='w')
+                        filemode='a')
 
     log = logging.getLogger('default')
     log.setLevel(logging.DEBUG)
@@ -69,12 +81,34 @@ def main():
 
     f=open(DATA_FILE,"r")
     try:
+        temps=""
+        volts=""
+        n=0
         for l in f:
             c = string.strip(l).split(",")
-            ts = datetime.datetime.fromtimestamp(float(c[0])).isoformat('T')
-            t = float(c[4])
-            v = float(c[5])
-            print ts,t,v
+            w=float(c[0])
+            if w>watermark:
+                ts = datetime.datetime.fromtimestamp(w).isoformat('T')
+                t = c[4] # temp
+                v = c[5] # volts
+                ch = int(c[1]) # channel
+                temps+=string.join([ts,t],",")
+                volts+=string.join([ts,v],",")
+                n=n+1
+                if n==MAX_DATAPOINTS:
+                    submit_datapoints(feed,ch,key,temps)
+                    # Voltage datastream is 100+temp datasteam
+                    submit_datapoints(feed,ch+100,key,volts)
+                    write_watermark(WATERMARK_FILE % feed,w)
+                    watermark = w
+                    n=0
+        if len(temps) or len(volts):
+            if len(volts):
+                submit_datapoints(feed,ch+100,key,volts)
+            if len(temps):
+                submit_datapoints(feed,ch,key,temps)
+            write_watermark(WATERMARK_FILE % feed,w)
+            
     finally:
         f.close()
 
