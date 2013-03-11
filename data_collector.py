@@ -110,7 +110,8 @@ def main():
             try:
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
-		logger.debug("ADC1=%s, NS=%s" % (pkt.get_adc(1),pkt.num_samples))
+		logger.debug("RAW ADC=%s,%s, NS=%s" % 
+			(pkt.get_adc(0),pkt.get_adc(1),pkt.num_samples))
                 temp_C = tmp36.get_t_from_adc(adc0)
                 battery_V = battery.get_battery_from_adc(adc1)
 
