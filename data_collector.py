@@ -26,7 +26,7 @@ LOCK_FILE='xbee_sensor_monitor.lock'
 logger = None
 global_lock = lockfile.FileLock(LOCK_FILE)
 
-VREF = 1235 #LM385-1.2
+VREF = 1221 #LM385-1.2
 
 def cleanup():
     global logger
@@ -47,7 +47,7 @@ def usage():
 
 def get_adc_v(pkt, adc_idx):
     "Retruns ADC value in volts"
-    return float(pkt.get_adc(adc_idx))/pkt.num_samples * VREF / 1024
+    return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1024.0)
 
 def main():
     global logger
@@ -110,6 +110,7 @@ def main():
             try:
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
+		logger.debug("ADC1=%s, NS=%s" % (pkt.get_adc(1),pkt.num_samples))
                 temp_C = tmp36.get_t_from_adc(adc0)
                 battery_V = battery.get_battery_from_adc(adc1)
 
