@@ -55,7 +55,7 @@ def voltage_correction(v):
 
 def temp_correctiom(t,va):
     "correctes estimated temperature based on actual voltage"
-    tc = 21.0-16.4 # it was measuring 16.4C when it was actually 21C
+    tc = 20.0-16.4 # it was measuring 16.4C when it was actually 21C
     return t-10.7156 + 3.24716*va + tc
 
 def main():
@@ -117,10 +117,10 @@ def main():
             pkt = pkt_reader.next()
 
             try:
+                radc0 = pkt.get_adc(0)
+                radc1 = pkt.get_adc(1)
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
-                logger.debug("RAW ADC=%s,%s, NS=%s" % 
-                             (pkt.get_adc(0),pkt.get_adc(1),pkt.num_samples))
                 battery_V = voltage_correction(battery.get_battery_from_adc(adc1)/1000.0)
                 temp_C = temp_correctiom(tmp36.get_t_from_adc(adc0),battery_V)
 
@@ -134,8 +134,8 @@ def main():
                 else:
                     logger.debug(report)
 
-                csv_report = '{0},{1},{2:.3f},{3:.3f},{4:.1f},{5:.3f}\n'.format(
-                    time.time(), pkt.address, adc0, adc1, temp_C, battery_V*1000.0)
+                csv_report = '{0},{1},{2},{3},{4:.1f},{5:.3f}\n'.format(
+                    time.time(), pkt.address, radc0, radc1, temp_C, battery_V*1000.0)
 
                 data_file.write(csv_report)
                 data_file.flush()
