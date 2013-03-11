@@ -49,6 +49,14 @@ def get_adc_v(pkt, adc_idx):
     "Retruns ADC value in volts"
     return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1024.0)
 
+def voltage_correction(v):
+    "empirical formula to correct estimated voltage to actual one"
+    return -12.4647 + 10.3012*v - 2.14076*(v**2) + 0.152242*(v**3)
+
+def temp_correctiom(t,va):
+    "correctes estimated temperature based on actual voltage"
+    t-10.7156 + 3.24716*va
+
 def main():
     global logger
 
@@ -110,15 +118,15 @@ def main():
             try:
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
-		logger.debug("RAW ADC=%s,%s, NS=%s" % 
-			(pkt.get_adc(0),pkt.get_adc(1),pkt.num_samples))
-                temp_C = tmp36.get_t_from_adc(adc0)
-                battery_V = battery.get_battery_from_adc(adc1)
+                logger.debug("RAW ADC=%s,%s, NS=%s" % 
+                             (pkt.get_adc(0),pkt.get_adc(1),pkt.num_samples))
+                battery_V = voltage_correction(battery.get_battery_from_adc(adc1)/1000.0)
+                temp_C = temp_correctiom(tmp36.get_t_from_adc(adc0),battery_V)
 
                 time_now = time.time()
                 report = 'A={0} T={1:.1f}C V={2:.3f}V'.format(
                     pkt.address,
-                    temp_C, battery_V/1000.0)
+                    temp_C, battery_V)
 
                 if console:
                     print report
@@ -126,7 +134,7 @@ def main():
                     logger.debug(report)
 
                 csv_report = '{0},{1},{2:.3f},{3:.3f},{4:.1f},{5:.3f}\n'.format(
-                    time.time(), pkt.address, adc0, adc1, temp_C, battery_V)
+                    time.time(), pkt.address, adc0, adc1, temp_C, battery_V*1000.0)
 
                 data_file.write(csv_report)
                 data_file.flush()
