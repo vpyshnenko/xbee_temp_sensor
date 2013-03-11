@@ -55,7 +55,7 @@ def voltage_correction(v):
 
 def temp_correctiom(t,va):
     "correctes estimated temperature based on actual voltage"
-    t-10.7156 + 3.24716*va
+    return t-10.7156 + 3.24716*va
 
 def main():
     global logger
