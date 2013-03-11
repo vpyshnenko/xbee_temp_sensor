@@ -10,10 +10,10 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[     37860,        987]
-NotebookOptionsPosition[     34987,        888]
-NotebookOutlinePosition[     35343,        904]
-CellTagsIndexPosition[     35300,        901]
+NotebookDataLength[     38094,        994]
+NotebookOptionsPosition[     35193,        894]
+NotebookOutlinePosition[     35549,        910]
+CellTagsIndexPosition[     35506,        907]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
@@ -811,6 +811,12 @@ Cell[BoxData[
    3.5719712304977837`*^9}]
 }, Open  ]],
 
+Cell["\<\
+In plot below: blue line - original measurements, green line - actual temp, \
+red line - corrected measurements\
+\>", "Text",
+ CellChangeTimes->{{3.5719736031093063`*^9, 3.571973630266686*^9}}],
+
 Cell[CellGroupData[{
 
 Cell[BoxData[
@@ -906,7 +912,7 @@ Notebook[{
 Cell[557, 20, 145, 3, 30, "Text"],
 Cell[CellGroupData[{
 Cell[727, 27, 376, 9, 46, "Input"],
-Cell[1106, 38, 1186, 31, 228, "Output"]
+Cell[1106, 38, 1186, 31, 217, "Output"]
 }, Open  ]],
 Cell[2307, 72, 104, 1, 30, "Text"],
 Cell[2414, 75, 192, 4, 28, "Input"],
@@ -919,7 +925,7 @@ Cell[3656, 112, 123, 3, 30, "Text"],
 Cell[3782, 117, 291, 7, 28, "Input"],
 Cell[4076, 126, 327, 9, 32, "Text"],
 Cell[CellGroupData[{
-Cell[4428, 139, 548, 14, 28, InheritFromParent],
+Cell[4428, 139, 548, 14, 28, "Input"],
 Cell[4979, 155, 1214, 23, 237, "Output"]
 }, Open  ]],
 Cell[6208, 181, 437, 14, 32, "Text"],
@@ -985,9 +991,10 @@ Cell[CellGroupData[{
 Cell[30660, 790, 213, 4, 28, "Input"],
 Cell[30876, 796, 741, 14, 46, "Output"]
 }, Open  ]],
+Cell[31632, 813, 203, 4, 49, "Text"],
 Cell[CellGroupData[{
-Cell[31654, 815, 832, 21, 46, "Input"],
-Cell[32489, 838, 2482, 47, 280, "Output"]
+Cell[31860, 821, 832, 21, 46, "Input"],
+Cell[32695, 844, 2482, 47, 246, "Output"]
 }, Open  ]]
 }
 ]
