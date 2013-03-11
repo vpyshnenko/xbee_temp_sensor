@@ -3,18 +3,17 @@
 API for TMP36 temperature sensor
 
   scale factor: 10 mV/C
+  offset: 500 mV
   Vout = 750 mV at 25 C
 
-  v1 = 750
-  t1 = 25
-  T = t1 + (v - v1) * 10
+  v1 = 500
+  T = (v - v1) * 10
 
 """
 
 import numpy
 
-V1 = 750.0
-T1 = 25.0
+V1 = 500.0
 K = 10.0
 
 def get_t_from_adc(Vmv):
@@ -27,4 +26,4 @@ def get_t_from_adc(Vmv):
     1023    Vref
     
     """
-    return T1 + (Vmv - V1) / K
+    return (Vmv - V1) / K
