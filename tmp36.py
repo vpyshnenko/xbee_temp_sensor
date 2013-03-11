@@ -7,7 +7,7 @@ API for TMP36 temperature sensor
   Vout = 750 mV at 25 C
 
   v1 = 500
-  T = (v - v1) * 10
+  T = (v - v1) / 10
 
 """
 

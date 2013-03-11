@@ -10,32 +10,85 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       157,          7]
-NotebookDataLength[      3136,        112]
-NotebookOptionsPosition[      2552,         86]
-NotebookOutlinePosition[      2906,        102]
-CellTagsIndexPosition[      2863,         99]
+NotebookDataLength[     13130,        391]
+NotebookOptionsPosition[     11865,        344]
+NotebookOutlinePosition[     12219,        360]
+CellTagsIndexPosition[     12176,        357]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
+Cell["\<\
+Data. Columns: Vcc (actual), ADC0 (temp), ADC1 (voltage)\
+\>", "Text",
+ CellChangeTimes->{{3.571964940157525*^9, 3.57196496806091*^9}}],
+
+Cell[CellGroupData[{
+
 Cell[BoxData[
  RowBox[{
   RowBox[{"data", "=", 
    RowBox[{
    "Import", "[", "\"\<~/src/xbee_temp_sensor/calibration/vinvout.csv\>\"", 
-    "]"}]}], ";"}]], "Input",
+    "]"}]}], ";", 
+  RowBox[{"TableForm", "[", "data", "]"}]}]], "Input",
  CellChangeTimes->{{3.571960541810717*^9, 3.571960557103874*^9}, {
-  3.571960589623599*^9, 3.571960625732486*^9}}],
-
-Cell[CellGroupData[{
+  3.571960589623599*^9, 3.571960625732486*^9}, {3.571964924008871*^9, 
+  3.5719649334380836`*^9}}],
 
 Cell[BoxData[
- RowBox[{"vref", "=", "1.221"}]], "Input",
- CellChangeTimes->{{3.571961035757799*^9, 3.5719610384852057`*^9}}],
-
-Cell[BoxData["1.221`"], "Output",
- CellChangeTimes->{3.571961039764485*^9}]
+ TagBox[GridBox[{
+    {"2.562`", "4619", "3416"},
+    {"\<\"2.8.32\"\>", "4615", "3769"},
+    {"3.013`", "4409", "3957"},
+    {"3.234`", "4392", "3840"},
+    {"3.506`", "4388", "4280"},
+    {"4.04`", "4282", "4800"},
+    {"4.23`", "4248", "5136"},
+    {"4.49`", "4184", "6144"},
+    {"4.74`", "4112", "7488"},
+    {"5.01`", "4088", "8064"},
+    {"5.24`", "4128", "8112"},
+    {"5.52`", "6144", "8172"}
+   },
+   GridBoxAlignment->{
+    "Columns" -> {{Left}}, "ColumnsIndexed" -> {}, "Rows" -> {{Baseline}}, 
+     "RowsIndexed" -> {}},
+   GridBoxSpacings->{"Columns" -> {
+       Offset[0.27999999999999997`], {
+        Offset[2.0999999999999996`]}, 
+       Offset[0.27999999999999997`]}, "ColumnsIndexed" -> {}, "Rows" -> {
+       Offset[0.2], {
+        Offset[0.4]}, 
+       Offset[0.2]}, "RowsIndexed" -> {}}],
+  Function[BoxForm`e$, 
+   TableForm[BoxForm`e$]]]], "Output",
+ CellChangeTimes->{{3.571964924557406*^9, 3.571964933877419*^9}}]
 }, Open  ]],
+
+Cell["Actual VREF (measured)", "Text",
+ CellChangeTimes->{{3.571964972668825*^9, 3.571964977580543*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"vref", "=", "1221"}], ";"}]], "Input",
+ CellChangeTimes->{{3.571961035757799*^9, 3.5719610384852057`*^9}, {
+  3.5719664889602757`*^9, 3.571966489406345*^9}}],
+
+Cell[TextData[{
+ "Voltage divider coefficient. I have 2 resistors 40K and 10K. Actual \
+coefficient should be 4, but measuring voltages ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{
+    SubscriptBox["V", "cc"], "/", 
+    SubscriptBox["V", "adc1"]}], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " I got:"
+}], "Text",
+ CellChangeTimes->{{3.571964985687566*^9, 3.571964990974379*^9}, {
+  3.5719650404810467`*^9, 3.5719650896081953`*^9}, {3.571965348686892*^9, 
+  3.5719653648380737`*^9}}],
 
 Cell[CellGroupData[{
 
@@ -45,43 +98,248 @@ Cell[BoxData[
  CellChangeTimes->{{3.571961593870944*^9, 3.571961610248926*^9}}],
 
 Cell[BoxData["5.025125628140703`"], "Output",
- CellChangeTimes->{3.57196161140491*^9, 3.571963430585472*^9}]
+ CellChangeTimes->{3.57196161140491*^9, 3.571963430585472*^9, 
+  3.571964879984035*^9}]
 }, Open  ]],
+
+Cell["\<\
+Convert RAW ADC value to volts:\
+\>", "Text",
+ CellChangeTimes->{{3.571966119711792*^9, 3.5719661259669333`*^9}}],
+
+Cell[BoxData[
+ RowBox[{
+  RowBox[{"raw2volts", "[", "x_", "]"}], " ", ":=", " ", 
+  RowBox[{
+   RowBox[{"x", "/", "8"}], "*", 
+   RowBox[{"vref", "/", "1024"}]}]}]], "Input",
+ CellChangeTimes->{{3.571966093216848*^9, 3.5719661390891037`*^9}, {
+  3.571966306019305*^9, 3.571966312401042*^9}}],
+
+Cell[TextData[{
+ "Plot ADC1 raw value (measured voltage, y-axis) vs. actual ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["V", "cc"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " (x-axis)"
+}], "Text",
+ CellChangeTimes->{{3.571965093272735*^9, 3.571965107656375*^9}, {
+  3.5719653805970907`*^9, 3.571965412290495*^9}}],
 
 Cell[CellGroupData[{
 
 Cell[BoxData[
  RowBox[{"ListLinePlot", "[", 
-  RowBox[{"Transpose", "[", 
-   RowBox[{"{", 
-    RowBox[{
-     RowBox[{"data", "[", 
-      RowBox[{"[", 
-       RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
-     RowBox[{"data", "[", 
-      RowBox[{"[", 
-       RowBox[{"All", ",", "3"}], "]"}], "]"}]}], "}"}], "]"}], "]"}]], \
-"Input",
+  RowBox[{
+   RowBox[{"Transpose", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "3"}], "]"}], "]"}]}], "}"}], "]"}], ",", 
+   RowBox[{"Mesh", "\[Rule]", " ", "All"}]}], "]"}]], "Input",
  CellChangeTimes->{{3.5719607360267687`*^9, 3.571960776963626*^9}, 
-   3.571960893696713*^9}],
+   3.571960893696713*^9, {3.5719656019019737`*^9, 3.5719656047470293`*^9}}],
 
 Cell[BoxData[
- GraphicsBox[{{}, {{}, {}, 
-    {RGBColor[0.24720000000000014`, 0.24, 0.6], 
-     LineBox[{{2.7, 950.22}, {3., 1007.056}, {3.3, 1040.825}, {3.6, 
-      1102.032}, {4., 1233.794}, {4.3, 1233.794}, {4.9, 1233.794}, {5.2, 
-      1233.794}, {5.5, 1233.794}}]}}, {}},
+ GraphicsBox[{{}, 
+   GraphicsComplexBox[{{2.562, 3416.}, {3.013, 3957.}, {3.234, 3840.}, {3.506,
+     4280.}, {4.04, 4800.}, {4.23, 5136.}, {4.49, 6144.}, {4.74, 7488.}, {
+    5.01, 8064.}, {5.24, 8112.}, {5.52, 8172.}}, {{{}, {}, 
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       LineBox[{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}]}}, {
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       PointBox[{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}]}, {}, {}}}], {}},
   AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
   Axes->True,
   AxesLabel->{None, None},
-  AxesOrigin->{2.7, 950.22},
+  AxesOrigin->{2.562, 3416.},
   Method->{},
-  PlotRange->{{2.7, 5.5}, {950.22, 1233.794}},
+  PlotRange->{{2.562, 5.52}, {3416., 8172.}},
   PlotRangeClipping->True,
-  PlotRangePadding->{{0.055999999999999994`, 0.055999999999999994`}, {
-   5.671480000000002, 5.671480000000002}}]], "Output",
+  PlotRangePadding->{{0.05916, 0.05916}, {95.12, 95.12}}]], "Output",
  CellChangeTimes->{3.57196074985423*^9, 3.5719608948912354`*^9, 
-  3.571963445339724*^9}]
+  3.571963445339724*^9, 3.571964880951365*^9, 3.571965606166295*^9, 
+  3.571966314932481*^9, 3.571966493838657*^9}]
+}, Open  ]],
+
+Cell[TextData[{
+ "Plot  estimated ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["V", "cc"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " calculated from ADC1, y-axis vs. actual ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["V", "cc"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " (x-axis)"
+}], "Text",
+ CellChangeTimes->{{3.5719655152104387`*^9, 3.571965541796028*^9}, {
+  3.57196632584022*^9, 3.571966326683962*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{"Transpose", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"raw2volts", "[", 
+        RowBox[{"data", "[", 
+         RowBox[{"[", 
+          RowBox[{"All", ",", "3"}], "]"}], "]"}], "]"}], "*", 
+       RowBox[{"k", "/", "1000"}]}]}], "}"}], "]"}], ",", 
+   RowBox[{"Mesh", "\[Rule]", " ", "All"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.571965480940589*^9, 3.571965505256278*^9}, {
+  3.5719655503971653`*^9, 3.5719655594808073`*^9}, {3.571965651870167*^9, 
+  3.571965655356141*^9}, {3.571966112373004*^9, 3.5719661414753637`*^9}, {
+  3.571966503232313*^9, 3.571966504278161*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   GraphicsComplexBox[{{2.562, 2.5585299544597992`}, {3.013, 
+    2.9637303951397613`}, {3.234, 2.876099246231156}, {3.506, 
+    3.205652284861809}, {4.04, 3.595124057788945}, {4.23, 
+    3.846782741834171}, {4.49, 4.601758793969849}, {4.74, 
+    5.608393530150754}, {5.01, 6.039808417085427}, {5.24, 
+    6.075759657663316}, {5.52, 6.120698708385678}}, {{{}, {}, 
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       LineBox[{2, 3, 4, 5, 6, 7, 8, 9, 10, 11}]}}, {
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       PointBox[{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}]}, {}, {}}}], {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{None, None},
+  AxesOrigin->{2.562, 2.5585299544597992`},
+  Method->{},
+  PlotRange->{{2.562, 5.52}, {2.5585299544597992`, 6.120698708385678}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.05916, 0.05916}, {0.07124337507851758, 
+   0.07124337507851758}}]], "Output",
+ CellChangeTimes->{
+  3.571965560093704*^9, 3.571965655723165*^9, 3.571966327998789*^9, {
+   3.571966499020356*^9, 3.571966504857275*^9}}]
+}, Open  ]],
+
+Cell[TextData[{
+ "Plot ADC0 raw value (measured temp, y-axis) vs. ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["V", "cc"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ " (x-axis). The tempearute around 20C during the experiment."
+}], "Text",
+ CellChangeTimes->{{3.571965420525766*^9, 3.571965454113551*^9}, {
+  3.571965673466279*^9, 3.571965676898128*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{"Transpose", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "2"}], "]"}], "]"}]}], "}"}], "]"}], ",", 
+   RowBox[{"Mesh", "\[Rule]", " ", "All"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.5719649103198843`*^9, 3.5719649196548777`*^9}, {
+  3.571965683611308*^9, 3.571965686698546*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   GraphicsComplexBox[{{2.562, 4619.}, {3.013, 4409.}, {3.234, 4392.}, {3.506,
+     4388.}, {4.04, 4282.}, {4.23, 4248.}, {4.49, 4184.}, {4.74, 4112.}, {
+    5.01, 4088.}, {5.24, 4128.}, {5.52, 5379.5}, {5.413819444444444, 
+    5379.5}}, {{{}, {}, 
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       LineBox[{2, 3, 4, 5, 6, 7, 8, 9, 10, 12}]}}, {
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       PointBox[{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}]}, {}, {}}}], {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{None, None},
+  AxesOrigin->{2.562, 4088.},
+  Method->{},
+  PlotRange->{{2.562, 5.52}, {4088., 5379.5}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.05916, 0.05916}, {25.830000000000002`, 
+   25.830000000000002`}}]], "Output",
+ CellChangeTimes->{3.5719649208392973`*^9, 3.571965687109889*^9}]
+}, Open  ]],
+
+Cell[TextData[{
+ "Plot estimated temperature (y-axis) vs ",
+ Cell[BoxData[
+  FormBox[
+   SubscriptBox["V", "cc"], TraditionalForm]],
+  FormatType->"TraditionalForm"],
+ "(x-axis)"
+}], "Text",
+ CellChangeTimes->{{3.571965697641958*^9, 3.571965710337153*^9}}],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ListLinePlot", "[", 
+  RowBox[{
+   RowBox[{"Transpose", "[", 
+    RowBox[{"{", 
+     RowBox[{
+      RowBox[{"data", "[", 
+       RowBox[{"[", 
+        RowBox[{"All", ",", "1"}], "]"}], "]"}], ",", 
+      RowBox[{
+       RowBox[{"(", 
+        RowBox[{
+         RowBox[{"raw2volts", "[", 
+          RowBox[{"data", "[", 
+           RowBox[{"[", 
+            RowBox[{"All", ",", "2"}], "]"}], "]"}], "]"}], " ", "-", " ", 
+         "500"}], ")"}], "/", "10"}]}], "}"}], "]"}], ",", 
+   RowBox[{"Mesh", "\[Rule]", " ", "All"}]}], "]"}]], "Input",
+ CellChangeTimes->{{3.571965730649777*^9, 3.57196573072223*^9}, {
+  3.5719657629256983`*^9, 3.571965775415086*^9}, {3.571965833888111*^9, 
+  3.5719658427024612`*^9}, {3.5719665145689383`*^9, 3.571966537526217*^9}, {
+  3.571966584024085*^9, 3.571966584334867*^9}}],
+
+Cell[BoxData[
+ GraphicsBox[{{}, 
+   GraphicsComplexBox[{{2.562, 18.84520263671875}, {3.013, 
+    15.71519775390625}, {3.234, 15.46181640625}, {3.506, 15.402197265625}, {
+    4.04, 13.8222900390625}, {4.23, 13.31552734375}, {4.49, 12.36162109375}, {
+    4.74, 11.2884765625}, {5.01, 10.93076171875}, {5.24, 11.526953125}, {5.52,
+     30.180291748046873`}, {5.413819444444444, 
+    30.180291748046873`}}, {{{}, {}, 
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       LineBox[{2, 3, 4, 5, 6, 7, 8, 9, 10, 12}]}}, {
+      {RGBColor[0.24720000000000014`, 0.24, 0.6], 
+       PointBox[{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12}]}, {}, {}}}], {}},
+  AspectRatio->NCache[GoldenRatio^(-1), 0.6180339887498948],
+  Axes->True,
+  AxesLabel->{None, None},
+  AxesOrigin->{2.562, 10.93076171875},
+  Method->{},
+  PlotRange->{{2.562, 5.52}, {10.93076171875, 30.180291748046873`}},
+  PlotRangeClipping->True,
+  PlotRangePadding->{{0.05916, 0.05916}, {0.3849906005859374, 
+   0.3849906005859374}}]], "Output",
+ CellChangeTimes->{3.571966538110767*^9, 3.571966584833263*^9}]
 }, Open  ]]
 },
 WindowSize->{740, 845},
@@ -101,18 +359,39 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[557, 20, 281, 7, 28, "Input"],
+Cell[557, 20, 145, 3, 30, "Text"],
 Cell[CellGroupData[{
-Cell[863, 31, 124, 2, 28, "Input"],
-Cell[990, 35, 75, 1, 28, "Output"]
+Cell[727, 27, 376, 9, 46, "Input"],
+Cell[1106, 38, 953, 27, 228, "Output"]
 }, Open  ]],
+Cell[2074, 68, 104, 1, 30, "Text"],
+Cell[2181, 71, 192, 4, 28, "Input"],
+Cell[2376, 77, 490, 13, 51, "Text"],
 Cell[CellGroupData[{
-Cell[1102, 41, 144, 3, 28, "Input"],
-Cell[1249, 46, 108, 1, 28, "Output"]
+Cell[2891, 94, 144, 3, 28, "Input"],
+Cell[3038, 99, 133, 2, 28, "Output"]
 }, Open  ]],
+Cell[3186, 104, 123, 3, 30, "Text"],
+Cell[3312, 109, 291, 7, 28, "Input"],
+Cell[3606, 118, 327, 9, 32, "Text"],
 Cell[CellGroupData[{
-Cell[1394, 52, 428, 13, 28, InheritFromParent],
-Cell[1825, 67, 711, 16, 237, "Output"]
+Cell[3958, 131, 548, 14, 28, InheritFromParent],
+Cell[4509, 147, 943, 19, 237, "Output"]
+}, Open  ]],
+Cell[5467, 169, 437, 14, 32, "Text"],
+Cell[CellGroupData[{
+Cell[5929, 187, 774, 19, 46, "Input"],
+Cell[6706, 208, 1124, 23, 241, "Output"]
+}, Open  ]],
+Cell[7845, 234, 365, 9, 51, "Text"],
+Cell[CellGroupData[{
+Cell[8235, 247, 523, 14, 28, "Input"],
+Cell[8761, 263, 900, 19, 241, "Output"]
+}, Open  ]],
+Cell[9676, 285, 256, 8, 32, "Text"],
+Cell[CellGroupData[{
+Cell[9957, 297, 830, 21, 46, "Input"],
+Cell[10790, 320, 1059, 21, 277, "Output"]
 }, Open  ]]
 }
 ]
