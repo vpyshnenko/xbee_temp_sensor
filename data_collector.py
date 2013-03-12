@@ -26,7 +26,7 @@ LOCK_FILE='xbee_sensor_monitor.lock'
 logger = None
 global_lock = lockfile.FileLock(LOCK_FILE)
 
-VREF = 1221 #LM385-1.2
+VREF = 3221 #LM 7833
 
 def cleanup():
     global logger
@@ -47,16 +47,15 @@ def usage():
 
 def get_adc_v(pkt, adc_idx):
     "Retruns ADC value in volts"
-    return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1024.0)
+    return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1023.0)
 
 def voltage_correction(v):
     "empirical formula to correct estimated voltage to actual one"
-    return -12.4647 + 10.3012*v - 2.14076*(v**2) + 0.152242*(v**3)
+    return v
 
 def temp_correctiom(t,va):
     "correctes estimated temperature based on actual voltage"
-    tc = 20.0-16.4 # it was measuring 16.4C when it was actually 21C
-    return t-10.7156 + 3.24716*va + tc
+    return t
 
 def main():
     global logger
