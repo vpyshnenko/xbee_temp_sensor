@@ -11,19 +11,11 @@ API for TMP36 temperature sensor
 
 """
 
-import numpy
-
 V1 = 500.0
 K = 10.0
 
 def get_t_from_adc(Vmv):
     """
-    returns temperature C from ADC value. 
-
-    code    Vout
-    ------------
-    0       0
-    1023    Vref
-    
+    returns temperature in C from ADC value. 
     """
     return (Vmv - V1) / K
