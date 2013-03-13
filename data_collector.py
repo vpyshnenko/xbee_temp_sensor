@@ -17,7 +17,6 @@ import lockfile
 
 import xbee_api
 import tmp36
-import battery
 
 MAIN_LOGFILE = 'data_collector.log'
 DATA_FILE = 'data_collector.csv'
@@ -26,7 +25,8 @@ LOCK_FILE='xbee_sensor_monitor.lock'
 logger = None
 global_lock = lockfile.FileLock(LOCK_FILE)
 
-VREF = 3221 #LM 7833
+VREF = 3221 # LM 7833
+BATTERY_K=4.43/0.892 # Voldate divider from Vcc to ADC1
 
 def cleanup():
     global logger
@@ -41,7 +41,7 @@ def usage():
 
 -s port -- use serial port <port>. Default is /dev/ttyUSB0
 -c -- output packet log to console
--d -- debug mode (more logging)
+-d -- debug mode, do not update csv (more logging)
 
 """  % sys.argv[0]
 
@@ -49,13 +49,8 @@ def get_adc_v(pkt, adc_idx):
     "Retruns ADC value in volts"
     return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1023.0)
 
-def voltage_correction(v):
-    "empirical formula to correct estimated voltage to actual one"
-    return v
-
-def temp_correctiom(t,va):
-    "correctes estimated temperature based on actual voltage"
-    return t
+def get_battery_from_adc(v):
+    return BATTERY_K*v
 
 def main():
     global logger
@@ -88,6 +83,7 @@ def main():
 
         serial_port= '/dev/ttyUSB0'
         console = False
+        debug_mode = False
 
         for o, a in opts:
             if o in ['-s']:
@@ -95,6 +91,7 @@ def main():
             elif o in ['-c']:
                 console = True
             elif o in ['-d']:
+                debug_mode = True
                 logger.setLevel(logging.DEBUG)
             else:
                 usage()
@@ -120,8 +117,8 @@ def main():
                 radc1 = pkt.get_adc(1)
                 adc0 = float(get_adc_v(pkt,0))
                 adc1 = float(get_adc_v(pkt,1))
-                battery_V = voltage_correction(battery.get_battery_from_adc(adc1)/1000.0)
-                temp_C = temp_correctiom(tmp36.get_t_from_adc(adc0),battery_V)
+                battery_V = get_battery_from_adc(adc1)/1000.0
+                temp_C = tmp36.get_t_from_adc(adc0)
 
                 time_now = time.time()
                 report = 'A={0} T={1:.1f}C V={2:.3f}V'.format(
@@ -136,8 +133,9 @@ def main():
                 csv_report = '{0},{1},{2},{3},{4:.1f},{5:.3f}\n'.format(
                     time.time(), pkt.address, radc0, radc1, temp_C, battery_V*1000.0)
 
-                data_file.write(csv_report)
-                data_file.flush()
+                if not debug_mode:
+                    data_file.write(csv_report)
+                    data_file.flush()
                     
             except IndexError, e:
                 # I get this from pkt.get_adc() when packet is broken
