@@ -57,12 +57,12 @@ def read_config(cfg_fname):
     finally:
         f.close()
 
-def get_adc_v(pkt, adc_idx):
+def get_adc_v(pkt, adc_idx,vref):
     "Retruns ADC value in volts"
-    return float(pkt.get_adc(adc_idx))*VREF/(pkt.num_samples * 1023.0)
+    return float(pkt.get_adc(adc_idx))*vref/(pkt.num_samples * 1023.0)
 
-def get_battery_from_adc(v):
-    return BATTERY_K*v
+def get_battery_from_adc(v,k):
+    return k*v
 
 def main():
     global logger
@@ -137,11 +137,22 @@ def main():
             pkt = pkt_reader.next()
 
             try:
+
+                sensor_address = str(pkt.address)
+                try:
+                    scfg = cfg[sensor_address]
+                    vref = scfg["vref"]
+                    battery_k = scfg["vccK"]
+                except KeyError:
+                    logger.warning("No config for sensor '%s'. Using defaults" % sensor_address)
+                    vref = VREF
+                    battery_k = BATTERY_K
+                    
                 radc0 = pkt.get_adc(0)
                 radc1 = pkt.get_adc(1)
-                adc0 = float(get_adc_v(pkt,0))
-                adc1 = float(get_adc_v(pkt,1))
-                battery_V = get_battery_from_adc(adc1)/1000.0
+                adc0 = float(get_adc_v(pkt,0,vref))
+                adc1 = float(get_adc_v(pkt,1,vref))
+                battery_V = get_battery_from_adc(adc1,battery_k)/1000.0
                 temp_C = tmp36.get_t_from_adc(adc0)
 
                 logger.debug('A={0} T={1:.1f}C V={2:.3f}V'.format(
