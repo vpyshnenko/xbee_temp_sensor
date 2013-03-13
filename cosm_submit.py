@@ -66,6 +66,8 @@ def read_config(cfg_fname):
         f.close()
 
 def submit_datapoints(feed,datastream,key,csv):
+    if len(csv)==0:
+        return
     log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
     if debug_mode:
         log.debug(csv)
@@ -126,9 +128,9 @@ def main():
 
     f=open(DATA_FILE,"r")
     try:
-        temps=""
-        volts=""
-        n=0
+        temps={}
+        volts={}
+        n={}
         for l in f:
             c = string.strip(l).split(",")
             w=float(c[0])
@@ -138,24 +140,28 @@ def main():
                 t = c[4] # temp
                 v = c[5] # volts
                 ch = int(c[1]) # channel
-                temps+=string.join([ts,t],",") + "\r\n"
-                volts+=string.join([ts,v],",")+ "\r\n"
-                n=n+1
-                if n==MAX_DATAPOINTS:
-                    submit_datapoints(feed,ch,key,temps)
-                    # Voltage datastream is 100+temp datasteam
-                    submit_datapoints(feed,ch+100,key,volts)
-                    write_watermark(WATERMARK_FILE % feed,w)
-                    watermark = w
-                    temps=""
-                    volts=""
-                    n=0
-                
-        if len(temps) or len(volts):
-            if len(volts):
-                submit_datapoints(feed,ch+100,key,volts)
-            if len(temps):
-                submit_datapoints(feed,ch,key,temps)
+                if not (ch in n):
+                    n[ch]=0
+                    volts[ch]=""
+                    temps[ch]=""
+                temps[ch]+=string.join([ts,t],",") + "\r\n"
+                volts[ch]+=string.join([ts,v],",")+ "\r\n"
+                n[ch]+=1
+                if n[ch]==MAX_DATAPOINTS:
+                    for ch in n:
+                        submit_datapoints(feed,ch,key,temps[ch])
+                        # Voltage datastream is 100+temp datasteam
+                        submit_datapoints(feed,ch+100,key,volts[ch])
+                        write_watermark(WATERMARK_FILE % feed,w)
+                        watermark = w
+                        temps={}
+                        volts={}
+                        n={}
+
+        for ch in n:
+            submit_datapoints(feed,ch,key,temps[ch])
+            # Voltage datastream is 100+temp datasteam
+            submit_datapoints(feed,ch+100,key,volts[ch])
             write_watermark(WATERMARK_FILE % feed,w)
             
     finally:
