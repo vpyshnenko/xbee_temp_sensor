@@ -16,6 +16,7 @@ import logging
 import time,datetime
 import string
 import urllib2
+import getopt
 
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"

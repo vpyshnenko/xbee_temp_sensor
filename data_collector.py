@@ -40,14 +40,14 @@ def cleanup():
 
 def usage():
     print """
-%s [-s /dev/ttyUSB0]
+%s [-s <port>] [-f <cfg file>] [-c] [-d]
 
--s <port> -- use serial port <port>. Default is /dev/ttyUSB0
--f <cfg file> -- config file name. Default is sensors.cfg
--c -- output packet log to console
+-s <port> -- use serial port <port>. Default is' %s'
+-f <cfg file> -- config file name. Default is '%s'
+-c -- log to console instead of log file
 -d -- debug mode, do not update csv (more logging)
 
-"""  % sys.argv[0]
+"""  % (sys.argv[0], SERIAL_PORT, CFG_FILE)
 
 def read_config(cfg_fname):
     logger.info("Reading config file %s" % cfg_fname)
