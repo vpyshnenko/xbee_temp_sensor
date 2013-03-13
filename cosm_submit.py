@@ -24,8 +24,14 @@ COSM_LOGFILE="cosm.log"
 MAX_DATAPOINTS=490 # Max number of datapoints per post. COSM limit is 500
 DATA_FILE = 'data_collector.csv'
 
-# for debugging
-DRY_RUN=False
+def usage():
+    print """
+%s [-c] [-d]
+
+-c -- log to console instead of log file
+-d -- debug, dry-run mode. No data submitted, watermarks not modified.
+
+"""  % sys.argv[0]
 
 def read_watermark(watermark_fname):
     log.info("Reading watermark file %s" % watermark_fname)
@@ -41,7 +47,8 @@ def read_watermark(watermark_fname):
         return 0
 
 def write_watermark(watermark_fname,w):
-    if DRY_RUN:
+    global debug_mode
+    if debug_mode:
         return
     log.info("Writing watermark file %s with value %s" % (watermark_fname,w))
     f=open(watermark_fname,"w")
@@ -60,8 +67,8 @@ def read_config(cfg_fname):
 
 def submit_datapoints(feed,datastream,key,csv):
     log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
-    if DRY_RUN:
-        print csv
+    if debug_mode:
+        log.debug(csv)
         return
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
@@ -72,15 +79,38 @@ def submit_datapoints(feed,datastream,key,csv):
 
 def main():
     global log
+    global debug_mode
+
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], 'dc', [])
+
+    except getopt.GetoptError:
+        usage()
+        sys.exit(2)
+
+    console = False
+    debug_mode = False
+
+    for o, a in opts:
+        if o in ['-d']:
+            debug_mode = True
+        elif o in ['-c']:
+            console = True
+        else:
+            usage()
+            sys.exit(1)
 
     log_format = '%(asctime)s %(process)d %(filename)s:%(lineno)d %(levelname)s %(message)s'
-    logging.basicConfig(level=logging.INFO,
-                        format=log_format,
-                        filename=COSM_LOGFILE,
-                        filemode='a')
-
+    if debug_mode:
+        log_level=logging.DEBUG
+    else:
+        log_level=logging.INFO
+    if console:
+        logging.basicConfig(level=log_level, format=log_format)
+    else:
+        logging.basicConfig(level=log_level, format=log_format,
+                            filename=COSM_LOGFILE, filemode='a')
     log = logging.getLogger('default')
-    log.setLevel(logging.DEBUG)
 
     try:
         cfg=read_config(CFG_FILE)

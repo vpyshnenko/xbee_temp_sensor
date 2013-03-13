@@ -24,7 +24,7 @@ DATA_FILE = 'data_collector.csv'
 LOCK_FILE='xbee_sensor_monitor.lock'
 SERIAL_PORT= '/dev/ttyUSB0'
 
-logger = None
+log = None
 global_lock = lockfile.FileLock(LOCK_FILE)
 
 # Default values for VREF and Battery volage divider. Could be overriden in config
@@ -32,9 +32,9 @@ VREF = 3221 # LM 7833
 BATTERY_K=4.43/0.892 # Voldate divider from Vcc to ADC1
 
 def cleanup():
-    global logger
-    if logger:
-        logger.info("Stop")
+    global log
+    if log:
+        log.info("Stop")
     if global_lock.is_locked():
         global_lock.release()
 
@@ -50,7 +50,7 @@ def usage():
 """  % (sys.argv[0], SERIAL_PORT, CFG_FILE)
 
 def read_config(cfg_fname):
-    logger.info("Reading config file %s" % cfg_fname)
+    log.info("Reading config file %s" % cfg_fname)
     f=open(cfg_fname,"r")
     try:
         return json.load(f)
@@ -65,7 +65,7 @@ def get_battery_from_adc(v,k):
     return k*v
 
 def main():
-    global logger
+    global log
 
     try:
         try:
@@ -80,7 +80,7 @@ def main():
             # causes LockTimeout
             global_lock.acquire(timeout=0)
         except lockfile.AlreadyLocked:
-            logger.error('Another copy of this program is running')
+            log.error('Another copy of this program is running')
             sys.exit(1)
 
         atexit.register(cleanup)
@@ -113,12 +113,12 @@ def main():
         else:
             logging.basicConfig(level=log_level, format=log_format,
                                 filename=MAIN_LOGFILE, filemode='a')
-        logger = logging.getLogger('default')
+        log = logging.getLogger('default')
 
         try:
             cfg = read_config(cfg_fname)
         except:
-            logger.error("Error reading config file %s" % cfg_fname)
+            log.error("Error reading config file %s" % cfg_fname)
             sys.exit(1)
 
         print 'Using serial port %s' % port
@@ -128,7 +128,7 @@ def main():
                                       timeout=120,
                                       rtscts=1)
 
-        logger.info("Starting collection")
+        log.info("Starting collection")
 
         data_file = file(DATA_FILE, 'a')
 
@@ -144,7 +144,7 @@ def main():
                     vref = scfg["vref"]
                     battery_k = scfg["vccK"]
                 except KeyError:
-                    logger.warning("No config for sensor '%s'. Using defaults" % sensor_address)
+                    log.warning("No config for sensor '%s'. Using defaults" % sensor_address)
                     vref = VREF
                     battery_k = BATTERY_K
                     
@@ -155,7 +155,7 @@ def main():
                 battery_V = get_battery_from_adc(adc1,battery_k)/1000.0
                 temp_C = tmp36.get_t_from_adc(adc0)
 
-                logger.debug('A={0} T={1:.1f}C V={2:.3f}V'.format(
+                log.debug('A={0} T={1:.1f}C V={2:.3f}V'.format(
                     pkt.address,
                     temp_C, battery_V))
 
@@ -168,7 +168,7 @@ def main():
                     
             except IndexError, e:
                 # I get this from pkt.get_adc() when packet is broken
-                logger.error('Broken XBee packet: "{0}"'.format(pkt))
+                log.error('Broken XBee packet: "{0}"'.format(pkt))
 
 
     except serial.SerialException,e:
