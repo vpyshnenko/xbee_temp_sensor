@@ -51,7 +51,7 @@ def write_watermark(watermark_fname,w):
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)
-    f=open(CFG_FILE,"r")
+    f=open(cfg_fname,"r")
     try:
         return json.load(f)
     finally:
