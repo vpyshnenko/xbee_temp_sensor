@@ -152,17 +152,17 @@ def main():
                         submit_datapoints(feed,ch,key,temps[ch])
                         # Voltage datastream is 100+temp datasteam
                         submit_datapoints(feed,ch+100,key,volts[ch])
-                        write_watermark(WATERMARK_FILE % feed,w)
-                        watermark = w
-                        temps={}
-                        volts={}
-                        n={}
+                    write_watermark(WATERMARK_FILE % feed,w)
+                    watermark = w
+                    temps={}
+                    volts={}
+                    n={}
 
         for ch in n:
             submit_datapoints(feed,ch,key,temps[ch])
             # Voltage datastream is 100+temp datasteam
             submit_datapoints(feed,ch+100,key,volts[ch])
-            write_watermark(WATERMARK_FILE % feed,w)
+        write_watermark(WATERMARK_FILE % feed,w)
             
     finally:
         f.close()
