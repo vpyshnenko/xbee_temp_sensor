@@ -44,10 +44,11 @@ DATA_FILE = 'wu.csv'
 
 def usage():
     print """
-%s [-c] [-d]
+%s [-f <cfg file>] [-c] [-d]
 
 -c -- log to console instead of log file
 -d -- debug, dry-run mode. No data written
+-f <cfg file> -- config file name. Default is '%s'
 
 """  % sys.argv[0]
 
@@ -64,20 +65,22 @@ def main():
     global debug_mode
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'dc', [])
-
+        opts, args = getopt.getopt(sys.argv[1:], 'dcf:', [])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
 
     console = False
     debug_mode = False
-
+    cfg_fname = CFG_FILE
+    
     for o, a in opts:
         if o in ['-d']:
             debug_mode = True
         elif o in ['-c']:
             console = True
+        if o in ['-f']:
+            cfg_fname = a
         else:
             usage()
             sys.exit(1)
@@ -95,9 +98,9 @@ def main():
     log = logging.getLogger('default')
 
     try:
-        cfg=read_config(CFG_FILE)
+        cfg=read_config(cfg_fname)
     except:
-        log.error("Error reading config file %s" % CFG_FILE)
+        log.error("Error reading config file %s" % cfg_fname)
         sys.exit(1)
         
     key  = cfg["key"]

@@ -69,8 +69,7 @@ def main():
 
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 's:f:cd', [])
-
+            opts, args = getopt.getopt(sys.argv[1:], 'cdf:s:', [])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
