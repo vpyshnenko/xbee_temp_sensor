@@ -139,7 +139,7 @@ def main():
                     local_time= time.time()
                     temp_f = float(parsed_json['temp'])
                     temp_c = (temp_f-32.0)*5.0/9.0
-                    temp_cs = "{:.3f}".format(temp_c)
+                    temp_cs = "{:.1f}".format(temp_c)
                     tstate = int(parsed_json['tstate'])
                     fstate = int(parsed_json['fstate'])
                     if tstate==2:
