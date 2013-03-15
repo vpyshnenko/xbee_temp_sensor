@@ -2,7 +2,7 @@
 """
 This script collects temperature data from wunderground.com
 
-It is using wu.cfg which is JSON dictionary with following fields:
+It is using wu.cfg which is JSON dictionary with following required fields:
 
 {
 "key":"your key",
@@ -26,6 +26,17 @@ The script writes CSV file wu.csv with the following fields:
 2. observation time (as reported by API)
 3. temperature in C (as reported by API)
 
+Additionaly, config file might contain following fields
+
+"cosm": {
+"key":"your key"
+"feed":123
+"datastream":"123"
+}
+
+If they present, it will additionally submit data to COSM.com to specified
+feed and datastream.
+
 """
 
 import json
@@ -35,6 +46,7 @@ import time,datetime
 import string
 import urllib2,urllib
 import getopt
+import cosm
 
 
 API_ENDPOINT="http://api.wunderground.com/api/%s/conditions/q/%s.json"
@@ -47,7 +59,7 @@ def usage():
 %s [-f <cfg file>] [-c] [-d] [-o <csv file>] [-t seconds]
 
 -c -- log to console instead of log file
--d -- debug, dry-run mode. No data written
+-d -- debug, dry-run mode. No data written or sent.
 -f <cfg file> -- config file name. Default is '%s'
 -o <csv file> -- CSV file name. Default is '%s'
 -t <seconds> -- Loop mode: query every 't' seconds. (off by default)
@@ -114,6 +126,12 @@ def main():
     key  = cfg["key"]
     query = cfg["location"]
     log.info("Using query %s" % query)
+
+    if cfg.has_key("cosm"):
+        cosm_feed = cfg["cosm"]["feed"]
+        cosm_key  = cfg["cosm"]["key"]
+        cosm_datastream  = cfg["cosm"]["datastream"]
+        log.debug("Will log to COSM %s/%s", (cosm_feed,cosm_datastream))
     
     if not debug_mode:
         data_file = file(data_fname, 'a')
@@ -143,12 +161,22 @@ def main():
             if debug_mode:
                 print csv_report
             else:
+                # Write to file
                 try:
                     data_file.write(csv_report)
                     data_file.flush()
                 except:
+                    # Error writing CSV is fatal
                     log.error("Error writing cfg file")
                     sys.exit(1)
+                # Send to COSM
+                try:
+                    ts = datetime.datetime.utcfromtimestamp(int(local_time)).isoformat('T')+"Z"
+                    cosm_report =string.join([ts,str(temp_c)],",") + "\r\n"
+                    cosm.submit_datapoints(cosm_feed,cosm_datastream,cosm_key,cosm_report)
+                except:
+                    # Error sending to cosm is non-fatal, but logged anyway
+                    log.error("Error sending to COSM")
 
             if sleep_time>0:
                 time.sleep(sleep_time)

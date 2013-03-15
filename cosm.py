@@ -9,10 +9,6 @@ def submit_datapoints(feed,datastream,key,csv):
     """
     if len(csv)==0:
         return
-    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
-    if debug_mode:
-        log.debug(csv)
-        return
     opener = urllib2.build_opener(urllib2.HTTPHandler)
     request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
     request.add_header('Host','api.cosm.com')
