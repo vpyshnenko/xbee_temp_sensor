@@ -158,7 +158,7 @@ def main():
                     log.info(s)
                 except Exception, ex:
                     log.error("Error fetching data from API: %s" % ex)
-                    sys.exit(1)
+                    next
                 finally:
                     f.close()
             except Exception, ex:
