@@ -143,7 +143,7 @@ def main():
                     fstate = int(parsed_json['fstate'])
                     if tstate==2:
                         tstate=-1
-                    s = "Current temperature is: %s." % temp_c
+                    s = "Current temperature is: {:.3f}".format(temp_c)
                     if fstate:
                         s+=" Fan in ON."
                     else:
@@ -164,7 +164,7 @@ def main():
                 log.error("Error fetching connecting to API: " +  str(sys.exc_info()[0]))
                 sys.exit(1)
 
-            csv_report = '{0},{1},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
+            csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
 
             if debug_mode:
                 print csv_report
