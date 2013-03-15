@@ -50,7 +50,7 @@ def usage():
 -d -- debug, dry-run mode. No data written
 -f <cfg file> -- config file name. Default is '%s'
 
-"""  % sys.argv[0]
+"""  % (sys.argv[0],CFG_FILE)
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)

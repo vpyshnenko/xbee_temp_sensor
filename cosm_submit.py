@@ -32,7 +32,7 @@ def usage():
 -d -- debug, dry-run mode. No data submitted, watermarks not modified.
 -f <cfg file> -- config file name. Default is '%s'
 
-"""  % sys.argv[0]
+"""  % (sys.argv[0],CFG_FILE)
 
 def read_watermark(watermark_fname):
     log.info("Reading watermark file %s" % watermark_fname)
