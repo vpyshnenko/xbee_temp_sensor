@@ -94,9 +94,9 @@ def main():
         for o, a in opts:
             if o in ['-s']:
                 port = a
-            if o in ['-f']:
+            elif o in ['-f']:
                 cfg_fname = a
-            if o in ['-o']:
+            elif o in ['-o']:
                 data_fname = a
             elif o in ['-c']:
                 console = True

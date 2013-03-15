@@ -101,9 +101,9 @@ def main():
             debug_mode = True
         elif o in ['-c']:
             console = True
-        if o in ['-f']:
+        elif o in ['-f']:
             cfg_fname = a
-        if o in ['-i']:
+        elif o in ['-i']:
             data_fname = a
         else:
             usage()
