@@ -26,12 +26,13 @@ DATA_FILE = 'data_collector.csv'
 
 def usage():
     print """
-%s [-f <cfg file>] [-c] [-d] [-i <csv file>]
+%s [-f <cfg file>] [-c] [-d] [-i <csv file>]  [-t seconds]
 
 -c -- log to console instead of log file
 -d -- debug, dry-run mode. No data submitted, watermarks not modified.
 -f <cfg file> -- config file name. Default is '%s'
 -i <csv file> -- CSV file name. Default is '%s'
+-t <seconds> -- Loop mode: sumbit every 't' seconds. (off by default)
 
 """  % (sys.argv[0],CFG_FILE,DATA_FILE)
 
@@ -49,9 +50,6 @@ def read_watermark(watermark_fname):
         return 0
 
 def write_watermark(watermark_fname,w):
-    global debug_mode
-    if debug_mode:
-        return
     log.info("Writing watermark file %s with value %s" % (watermark_fname,w))
     f=open(watermark_fname,"w")
     try:
@@ -72,7 +70,7 @@ def main():
     global debug_mode
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'dcf:i:', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'dcf:i:t:', [])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -81,6 +79,7 @@ def main():
     debug_mode = False
     cfg_fname = CFG_FILE
     data_fname = DATA_FILE
+    sleep_time = 0 # non zero means loop mode
     
     for o, a in opts:
         if o in ['-d']:
@@ -91,6 +90,8 @@ def main():
             cfg_fname = a
         elif o in ['-i']:
             data_fname = a
+        elif o in ['-t']:
+            sleep_time = int(a)
         else:
             usage()
             sys.exit(1)
@@ -119,46 +120,54 @@ def main():
     watermark = read_watermark(WATERMARK_FILE % feed)
     log.info("Using watermark %s" % watermark)
 
-    f=open(data_fname,"r")
-    try:
-        temps={}
-        volts={}
-        n={}
-        for l in f:
-            c = string.strip(l).split(",")
-            w=float(c[0])
-            if w>watermark:
-                #  ISO 8601 date
-                ts = datetime.datetime.utcfromtimestamp(int(w)).isoformat('T')+"Z"
-                t = c[4] # temp
-                v = c[5] # volts
-                ch = int(c[1]) # channel
-                if not (ch in n):
-                    n[ch]=0
-                    volts[ch]=""
-                    temps[ch]=""
-                temps[ch]+=string.join([ts,t],",") + "\r\n"
-                volts[ch]+=string.join([ts,v],",")+ "\r\n"
-                n[ch]+=1
-                if n[ch]==MAX_DATAPOINTS:
-                    for ch in n:
-                        cosm.submit_datapoints(feed,ch,key,temps[ch])
-                        # Voltage datastream is 100+temp datasteam
-                        cosm.submit_datapoints(feed,ch+100,key,volts[ch])
-                    write_watermark(WATERMARK_FILE % feed,w)
-                    watermark = w
-                    temps={}
-                    volts={}
-                    n={}
+    while True:
+        f=open(data_fname,"r")
+        try:
+            temps={}
+            volts={}
+            n={}
+            for l in f:
+                c = string.strip(l).split(",")
+                w=float(c[0])
+                if w>watermark:
+                    #  ISO 8601 date
+                    ts = datetime.datetime.utcfromtimestamp(int(w)).isoformat('T')+"Z"
+                    t = c[4] # temp
+                    v = c[5] # volts
+                    ch = int(c[1]) # channel
+                    if not (ch in n):
+                        n[ch]=0
+                        volts[ch]=""
+                        temps[ch]=""
+                    temps[ch]+=string.join([ts,t],",") + "\r\n"
+                    volts[ch]+=string.join([ts,v],",")+ "\r\n"
+                    n[ch]+=1
+                    if n[ch]==MAX_DATAPOINTS:
+                        if not debug_mode:                        
+                            for ch in n:
+                                cosm.submit_datapoints(feed,ch,key,temps[ch])
+                                # Voltage datastream is 100+temp datasteam
+                                cosm.submit_datapoints(feed,ch+100,key,volts[ch])
+                            write_watermark(WATERMARK_FILE % feed,w)
+                        watermark = w
+                        temps={}
+                        volts={}
+                        n={}
 
-        for ch in n:
-            cosm.submit_datapoints(feed,ch,key,temps[ch])
-            # Voltage datastream is 100+temp datasteam
-            cosm.submit_datapoints(feed,ch+100,key,volts[ch])
-        write_watermark(WATERMARK_FILE % feed,w)
+            if not debug_mode:                        
+                for ch in n:
+                    cosm.submit_datapoints(feed,ch,key,temps[ch])
+                    # Voltage datastream is 100+temp datasteam
+                    cosm.submit_datapoints(feed,ch+100,key,volts[ch])
+                write_watermark(WATERMARK_FILE % feed,w)
+        finally:
+            f.close()
             
-    finally:
-        f.close()
+        if sleep_time>0:
+            log.debug("Sleeping for %s"%sleep_time)
+            time.sleep(sleep_time)
+        else:
+            break
 
 
 
