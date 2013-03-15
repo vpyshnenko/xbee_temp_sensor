@@ -44,12 +44,13 @@ DATA_FILE = 'wu.csv'
 
 def usage():
     print """
-%s [-f <cfg file>] [-c] [-d] [-o <csv file>]
+%s [-f <cfg file>] [-c] [-d] [-o <csv file>] [-t seconds]
 
 -c -- log to console instead of log file
 -d -- debug, dry-run mode. No data written
 -f <cfg file> -- config file name. Default is '%s'
 -o <csv file> -- CSV file name. Default is '%s'
+-t <seconds> -- Loop mode: query every 't' seconds. (off by default)
 
 """  % (sys.argv[0], CFG_FILE, DATA_FILE)
 
@@ -66,7 +67,7 @@ def main():
     global debug_mode
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'dcf:o:', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'dcf:o:t:', [])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -75,6 +76,7 @@ def main():
     debug_mode = False
     cfg_fname = CFG_FILE
     data_fname = DATA_FILE
+    sleep_time = 0 # non zero means loop mode
     
     for o, a in opts:
         if o in ['-d']:
@@ -85,6 +87,8 @@ def main():
             cfg_fname = a
         elif o in ['-o']:
             data_fname = a
+        elif o in ['-t']:
+            sleep_time = int(a)
         else:
             usage()
             sys.exit(1)
@@ -110,39 +114,48 @@ def main():
     key  = cfg["key"]
     query = cfg["location"]
     log.info("Using query %s" % query)
-
-    try:
-        f = urllib2.urlopen(API_ENDPOINT % (urllib.quote_plus(key), urllib.quote_plus(query)))
-        try:
-            json_string = f.read()
-            parsed_json = json.loads(json_string)
-            local_time= time.time()
-            observation_time = int(parsed_json['current_observation']['observation_epoch'])
-            temp_c = parsed_json['current_observation']['temp_c']
-            log.info("Current temperature is: %s" % temp_c)
-        except:
-            log.error("Error fetching data from API")
-            sys.exit(1)
-        finally:
-            f.close()
-    except:
-        log.error("Error fetching connecting to API")
-        sys.exit(1)
-
-    csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
-
-    if debug_mode:
-        print csv_report
-    else:
+    
+    if not debug_mode:
         data_file = file(data_fname, 'a')
-        try:
-            data_file.write(csv_report)
-            data_file.flush()
-        except:
-            log.error("Error writing cfg file")
-            sys.exit(1)
-        finally:
-            data_file.close();
+        
+    try:
+        while True:
+            try:
+                f = urllib2.urlopen(API_ENDPOINT % (urllib.quote_plus(key), urllib.quote_plus(query)))
+                try:
+                    json_string = f.read()
+                    parsed_json = json.loads(json_string)
+                    local_time= time.time()
+                    observation_time = int(parsed_json['current_observation']['observation_epoch'])
+                    temp_c = parsed_json['current_observation']['temp_c']
+                    log.info("Current temperature is: %s" % temp_c)
+                except:
+                    log.error("Error fetching data from API")
+                    sys.exit(1)
+                finally:
+                    f.close()
+            except:
+                log.error("Error fetching connecting to API")
+                sys.exit(1)
+
+            csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
+
+            if debug_mode:
+                print csv_report
+            else:
+                try:
+                    data_file.write(csv_report)
+                    data_file.flush()
+                except:
+                    log.error("Error writing cfg file")
+                    sys.exit(1)
+
+            if sleep_time>0:
+                time.sleep(sleep_time)
+            else:
+                break
+    finally:
+        data_file.close();
 
 if __name__ == '__main__':
     main()
