@@ -1,41 +1,32 @@
 #!/usr/bin/env python2.7
 """
-This script collects temperature data from wunderground.com
+This script collects temperature data from wireless theromostat by https://radiothermostat.com/
 
-It is using wu.cfg which is JSON dictionary with following required fields:
+It is using radiothermostat.cfg which is JSON dictionary with following required fields:
 
 {
-"key":"your key",
-"location":"location query"
+"IP":"theromostat IP address or host name",
 }
 
-The query specifies location for which you want weather information. Examples:
+The script writes CSV file radiothermostat.csv with the following fields:
 
-CA/San_Francisco	US state/city
-60290	US zipcode
-Australia/Sydney	country/city
-37.8,-122.4	latitude,longitude
-KJFK	airport code
-pws:KCASANFR70	PWS id
-autoip	AutoIP address location
-autoip.json?geo_ip=38.102.136.138	specific IP address location
-
-The script writes CSV file wu.csv with the following fields:
-
-1. current time (unix timestamp)
-2. observation time (as reported by API)
-3. temperature in C (as reported by API)
+1. current time (unit timestamp)
+2. temperature in C (as reported by API)
+3. HVAC operating state (0-OFF, 1-HEAT, -1-COOL)
+4. Fan state (0-OFF, 1-ON)
 
 Additionaly, config file might contain following fields
 
 "cosm": {
-"key":"your key"
-"feed":123
-"datastream":123
+"key":"your key",
+"feed":123,
+"temp_datastream":10,
+"tstate_datastream":20,
+"fstate_datastream":30
 }
 
 If they present, it will additionally submit data to COSM.com to specified
-feed and datastream.
+feed and datastreams.
 
 """
 
@@ -49,10 +40,10 @@ import getopt
 import cosm
 
 
-API_ENDPOINT="http://api.wunderground.com/api/%s/conditions/q/%s.json"
-CFG_FILE="wu.cfg"
-WU_LOGFILE="wu.log"
-DATA_FILE = 'wu.csv'
+API_ENDPOINT="http://%s/tstat"
+CFG_FILE="radiothermostat.cfg"
+RT_LOGFILE="radiothermostat.log"
+DATA_FILE = 'radiothermostat.csv'
 
 def usage():
     print """
@@ -114,7 +105,7 @@ def main():
         logging.basicConfig(level=log_level, format=log_format)
     else:
         logging.basicConfig(level=log_level, format=log_format,
-                            filename=WU_LOGFILE, filemode='a')
+                            filename=RT_LOGFILE, filemode='a')
     log = logging.getLogger('default')
 
     try:
@@ -123,15 +114,16 @@ def main():
         log.error("Error reading config file %s" % cfg_fname)
         sys.exit(1)
         
-    key  = cfg["key"]
-    query = cfg["location"]
-    log.info("Using query %s" % query)
+    ip  = cfg["IP"]
+    log.info("Thermosat IP %s" % ip)
 
     if cfg.has_key("cosm"):
         cosm_feed = cfg["cosm"]["feed"]
         cosm_key  = cfg["cosm"]["key"]
-        cosm_datastream  = cfg["cosm"]["datastream"]
-        log.debug("Will log to COSM %s/%s", (cosm_feed,cosm_datastream))
+        cosm_temp_datastream  = cfg["cosm"]["temp_datastream"]
+        cosm_tstate_datastream  = cfg["cosm"]["tstate_datastream"]
+        cosm_fstate_datastream  = cfg["cosm"]["fstate_datastream"]
+        log.debug("Will log to COSM feed %s", cosm_feed)
     
     if not debug_mode:
         data_file = file(data_fname, 'a')
@@ -139,24 +131,40 @@ def main():
     try:
         while True:
             try:
-                f = urllib2.urlopen(API_ENDPOINT % (urllib.quote_plus(key), urllib.quote_plus(query)))
+                f = urllib2.urlopen(API_ENDPOINT % ip)
                 try:
                     json_string = f.read()
                     parsed_json = json.loads(json_string)
                     local_time= time.time()
-                    observation_time = int(parsed_json['current_observation']['observation_epoch'])
-                    temp_c = parsed_json['current_observation']['temp_c']
-                    log.info("Current temperature is: %s" % temp_c)
+                    print parsed_json
+                    temp_f = float(parsed_json['temp'])
+                    temp_c = (temp_f-32.0)*5.0/9.0
+                    tstate = int(parsed_json['tstate'])
+                    fstate = int(parsed_json['fstate'])
+                    if tstate==2:
+                        tstate=-1
+                    s = "Current temperature is: %s." % temp_c
+                    if fstate:
+                        s+=" Fan in ON."
+                    else:
+                        s+=" Fan in OFF."
+                    if tstate==0:
+                        s+=" HVAC is OFF."
+                    elif tstate==1:
+                        s+=" HVAC is heating."
+                    else:
+                        s+=" HVAC is cooling."
+                    log.info(s)
                 except:
-                    log.error("Error fetching data from API")
+                    log.error("Error fetching data from API" + str(sys.exc_info()[0]))
                     sys.exit(1)
                 finally:
                     f.close()
             except:
-                log.error("Error fetching connecting to API")
+                log.error("Error fetching connecting to API: " +  str(sys.exc_info()[0]))
                 sys.exit(1)
 
-            csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
+            csv_report = '{0},{1},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
 
             if debug_mode:
                 print csv_report
@@ -169,15 +177,21 @@ def main():
                     # Error writing CSV is fatal
                     log.error("Error writing cfg file")
                     sys.exit(1)
+                    
                 # Send to COSM
                 if cfg.has_key("cosm"):
-                    try:
-                        ts = datetime.datetime.utcfromtimestamp(int(local_time)).isoformat('T')+"Z"
-                        cosm_report =string.join([ts,str(temp_c)],",") + "\r\n"
-                        cosm.submit_datapoints(cosm_feed,cosm_datastream,cosm_key,cosm_report)
-                    except:
-                        # Error sending to cosm is non-fatal, but logged anyway
-                        log.error("Error sending to COSM")
+                    data = {cosm_temp_datastream:temp_c,
+                            cosm_tstate_datastream:tstate,
+                            cosm_fstate_datastream:fstate
+                            }
+                    ts = datetime.datetime.utcfromtimestamp(int(local_time)).isoformat('T')+"Z"
+                    for ds in data:
+                        try:
+                            cosm_report =string.join([ts,str(data[ds])],",") + "\r\n"
+                            cosm.submit_datapoints(cosm_feed,ds,cosm_key,cosm_report)
+                        except:
+                            # Error sending to cosm is non-fatal, but logged anyway
+                            log.error("Error sending to COSM datastream %s" % ds)
 
             if sleep_time>0:
                 time.sleep(sleep_time)
