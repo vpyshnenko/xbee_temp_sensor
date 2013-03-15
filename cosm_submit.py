@@ -15,8 +15,8 @@ import sys
 import logging
 import time,datetime
 import string
-import urllib2
 import getopt
+import cosm
 
 CFG_FILE="cosm.cfg"
 WATERMARK_FILE="cosm.%s.watermark"
@@ -66,20 +66,6 @@ def read_config(cfg_fname):
         return json.load(f)
     finally:
         f.close()
-
-def submit_datapoints(feed,datastream,key,csv):
-    if len(csv)==0:
-        return
-    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
-    if debug_mode:
-        log.debug(csv)
-        return
-    opener = urllib2.build_opener(urllib2.HTTPHandler)
-    request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
-    request.add_header('Host','api.cosm.com')
-    request.add_header('Content-type','text/csv')
-    request.add_header('X-ApiKey', key)
-    url = opener.open(request)
 
 def main():
     global log
@@ -156,9 +142,9 @@ def main():
                 n[ch]+=1
                 if n[ch]==MAX_DATAPOINTS:
                     for ch in n:
-                        submit_datapoints(feed,ch,key,temps[ch])
+                        cosm.submit_datapoints(feed,ch,key,temps[ch])
                         # Voltage datastream is 100+temp datasteam
-                        submit_datapoints(feed,ch+100,key,volts[ch])
+                        cosm.submit_datapoints(feed,ch+100,key,volts[ch])
                     write_watermark(WATERMARK_FILE % feed,w)
                     watermark = w
                     temps={}
@@ -166,9 +152,9 @@ def main():
                     n={}
 
         for ch in n:
-            submit_datapoints(feed,ch,key,temps[ch])
+            cosm.submit_datapoints(feed,ch,key,temps[ch])
             # Voltage datastream is 100+temp datasteam
-            submit_datapoints(feed,ch+100,key,volts[ch])
+            cosm.submit_datapoints(feed,ch+100,key,volts[ch])
         write_watermark(WATERMARK_FILE % feed,w)
             
     finally:
