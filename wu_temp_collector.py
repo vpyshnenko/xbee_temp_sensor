@@ -44,13 +44,14 @@ DATA_FILE = 'wu.csv'
 
 def usage():
     print """
-%s [-f <cfg file>] [-c] [-d]
+%s [-f <cfg file>] [-c] [-d] [-o <csv file>]
 
 -c -- log to console instead of log file
 -d -- debug, dry-run mode. No data written
 -f <cfg file> -- config file name. Default is '%s'
+-o <csv file> -- CSV file name. Default is '%s'
 
-"""  % (sys.argv[0],CFG_FILE)
+"""  % (sys.argv[0], CFG_FILE, DATA_FILE)
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)
@@ -65,7 +66,7 @@ def main():
     global debug_mode
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'dcf:', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'dcf:o:', [])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -73,6 +74,7 @@ def main():
     console = False
     debug_mode = False
     cfg_fname = CFG_FILE
+    data_fname = DATA_FILE
     
     for o, a in opts:
         if o in ['-d']:
@@ -81,6 +83,8 @@ def main():
             console = True
         if o in ['-f']:
             cfg_fname = a
+        if o in ['-o']:
+            data_fname = a
         else:
             usage()
             sys.exit(1)
@@ -130,7 +134,7 @@ def main():
     if debug_mode:
         print csv_report
     else:
-        data_file = file(DATA_FILE, 'a')
+        data_file = file(data_fname, 'a')
         try:
             data_file.write(csv_report)
             data_file.flush()

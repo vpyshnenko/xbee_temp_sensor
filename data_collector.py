@@ -40,14 +40,15 @@ def cleanup():
 
 def usage():
     print """
-%s [-s <port>] [-f <cfg file>] [-c] [-d]
+%s [-s <port>] [-f <cfg file>] [-c] [-d] [-o <csv file>]
 
 -s <port> -- use serial port <port>. Default is' %s'
 -f <cfg file> -- config file name. Default is '%s'
 -c -- log to console instead of log file
 -d -- debug mode, do not update csv (more logging)
+-o <csv file> -- CSV file name. Default is '%s'
 
-"""  % (sys.argv[0], SERIAL_PORT, CFG_FILE)
+"""  % (sys.argv[0], SERIAL_PORT, CFG_FILE, DATA_FILE)
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)
@@ -69,7 +70,7 @@ def main():
 
     try:
         try:
-            opts, args = getopt.getopt(sys.argv[1:], 'cdf:s:', [])
+            opts, args = getopt.getopt(sys.argv[1:], 'cdf:s:o:', [])
         except getopt.GetoptError:
             usage()
             sys.exit(2)
@@ -88,12 +89,15 @@ def main():
         debug_mode = False
         port = SERIAL_PORT;
         cfg_fname = CFG_FILE
+        data_fname = DATA_FILE
         
         for o, a in opts:
             if o in ['-s']:
                 port = a
             if o in ['-f']:
                 cfg_fname = a
+            if o in ['-o']:
+                data_fname = a
             elif o in ['-c']:
                 console = True
             elif o in ['-d']:
@@ -129,7 +133,7 @@ def main():
 
         log.info("Starting collection")
 
-        data_file = file(DATA_FILE, 'a')
+        data_file = file(data_fname, 'a')
 
         pkt_reader = xbee_api.read_packet(s)
         while True:

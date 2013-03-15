@@ -26,13 +26,14 @@ DATA_FILE = 'data_collector.csv'
 
 def usage():
     print """
-%s [-f <cfg file>] [-c] [-d]
+%s [-f <cfg file>] [-c] [-d] [-i <csv file>]
 
 -c -- log to console instead of log file
 -d -- debug, dry-run mode. No data submitted, watermarks not modified.
 -f <cfg file> -- config file name. Default is '%s'
+-i <csv file> -- CSV file name. Default is '%s'
 
-"""  % (sys.argv[0],CFG_FILE)
+"""  % (sys.argv[0],CFG_FILE,DATA_FILE)
 
 def read_watermark(watermark_fname):
     log.info("Reading watermark file %s" % watermark_fname)
@@ -85,7 +86,7 @@ def main():
     global debug_mode
 
     try:
-        opts, args = getopt.getopt(sys.argv[1:], 'dcf:', [])
+        opts, args = getopt.getopt(sys.argv[1:], 'dcf:i:', [])
     except getopt.GetoptError:
         usage()
         sys.exit(2)
@@ -93,6 +94,7 @@ def main():
     console = False
     debug_mode = False
     cfg_fname = CFG_FILE
+    data_fname = DATA_FILE
     
     for o, a in opts:
         if o in ['-d']:
@@ -101,6 +103,8 @@ def main():
             console = True
         if o in ['-f']:
             cfg_fname = a
+        if o in ['-i']:
+            data_fname = a
         else:
             usage()
             sys.exit(1)
@@ -129,7 +133,7 @@ def main():
     watermark = read_watermark(WATERMARK_FILE % feed)
     log.info("Using watermark %s" % watermark)
 
-    f=open(DATA_FILE,"r")
+    f=open(data_fname,"r")
     try:
         temps={}
         volts={}
