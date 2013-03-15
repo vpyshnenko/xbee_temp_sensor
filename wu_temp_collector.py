@@ -154,7 +154,7 @@ def main():
                     f.close()
             except:
                 log.error("Error fetching connecting to API")
-                sys.exit(1)
+                next
 
             csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
 

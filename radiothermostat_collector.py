@@ -44,6 +44,7 @@ API_ENDPOINT="http://%s/tstat"
 CFG_FILE="radiothermostat.cfg"
 RT_LOGFILE="radiothermostat.log"
 DATA_FILE = 'radiothermostat.csv'
+API_TIMEOUT=5
 
 def usage():
     print """
@@ -131,19 +132,19 @@ def main():
     try:
         while True:
             try:
-                f = urllib2.urlopen(API_ENDPOINT % ip)
+                f = urllib2.urlopen(API_ENDPOINT % ip, None, API_TIMEOUT)
                 try:
                     json_string = f.read()
                     parsed_json = json.loads(json_string)
                     local_time= time.time()
-                    print parsed_json
                     temp_f = float(parsed_json['temp'])
                     temp_c = (temp_f-32.0)*5.0/9.0
+                    temp_cs = "{:.3f}".format(temp_c)
                     tstate = int(parsed_json['tstate'])
                     fstate = int(parsed_json['fstate'])
                     if tstate==2:
                         tstate=-1
-                    s = "Current temperature is: {:.3f}".format(temp_c)
+                    s = "Current temperature is: " + temp_cs
                     if fstate:
                         s+=" Fan in ON."
                     else:
@@ -162,7 +163,7 @@ def main():
                     f.close()
             except:
                 log.error("Error fetching connecting to API: " +  str(sys.exc_info()[0]))
-                sys.exit(1)
+                next
 
             csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
 
@@ -180,7 +181,7 @@ def main():
                     
                 # Send to COSM
                 if cfg.has_key("cosm"):
-                    data = {cosm_temp_datastream:temp_c,
+                    data = {cosm_temp_datastream:temp_cs,
                             cosm_tstate_datastream:tstate,
                             cosm_fstate_datastream:fstate
                             }
