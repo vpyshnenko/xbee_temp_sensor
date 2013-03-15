@@ -126,6 +126,7 @@ def main():
             temps={}
             volts={}
             n={}
+            normal_exit = True
             for l in f:
                 c = string.strip(l).split(",")
                 w=float(c[0])
@@ -143,23 +144,40 @@ def main():
                     volts[ch]+=string.join([ts,v],",")+ "\r\n"
                     n[ch]+=1
                     if n[ch]==MAX_DATAPOINTS:
-                        if not debug_mode:                        
-                            for ch in n:
-                                cosm.submit_datapoints(feed,ch,key,temps[ch])
-                                # Voltage datastream is 100+temp datasteam
-                                cosm.submit_datapoints(feed,ch+100,key,volts[ch])
-                            write_watermark(WATERMARK_FILE % feed,w)
+                        if not debug_mode:
+                            try:
+                                for ch in n:
+                                    cosm.submit_datapoints(feed,ch,key,temps[ch])
+                                    # Voltage datastream is 100+temp datasteam
+                                    cosm.submit_datapoints(feed,ch+100,key,volts[ch])
+                            except Exception, ex:
+                                log.error("Error sending to COSM: %s" % ex )
+                                normal_exit = False
+                                break
+                            try:
+                                write_watermark(WATERMARK_FILE % feed,w)
+                            except Exception, ex:
+                                log.error("Error writing watermark: %s" % ex )
+                                sys.exit(1)
                         watermark = w
                         temps={}
                         volts={}
                         n={}
-
-            if not debug_mode:                        
+            # End of loop. Send stuff remaining since last sumbit.
+            # However if we exited due to error, do not try to write again.
+            if not debug_mode and normal_exit:
                 for ch in n:
-                    cosm.submit_datapoints(feed,ch,key,temps[ch])
-                    # Voltage datastream is 100+temp datasteam
-                    cosm.submit_datapoints(feed,ch+100,key,volts[ch])
-                write_watermark(WATERMARK_FILE % feed,w)
+                    try:
+                        cosm.submit_datapoints(feed,ch,key,temps[ch])
+                        # Voltage datastream is 100+temp datasteam
+                        cosm.submit_datapoints(feed,ch+100,key,volts[ch])
+                    except Exception, ex:
+                        log.error("Error sending to COSM: %s" % ex )
+                try:
+                    write_watermark(WATERMARK_FILE % feed,w)
+                except Exception, ex:
+                    log.error("Error writing watermark: %s" % ex )
+                    sys.exit(1)
         finally:
             f.close()
             

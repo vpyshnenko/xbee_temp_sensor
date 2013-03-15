@@ -176,7 +176,7 @@ def main():
                         cosm_report =string.join([ts,str(temp_c)],",") + "\r\n"
                         cosm.submit_datapoints(cosm_feed,cosm_datastream,cosm_key,cosm_report)
                     except Exception, ex:
-                        # Error sending to cosm is non-fatal, but logged anyway
+                        # Error sending to COSM is non-fatal, but logged anyway
                         log.error("Error sending to COSM: %s" % ex )
 
             if sleep_time>0:
