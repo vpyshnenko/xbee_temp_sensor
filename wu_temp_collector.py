@@ -5,7 +5,7 @@ This script collects temperature data from wunderground.com
 It is using wu.cfg which is JSON dictionary with following fields:
 
 {
-"key":"your key"
+"key":"your key",
 "location":"location query"
 }
 
@@ -20,6 +20,12 @@ pws:KCASANFR70	PWS id
 autoip	AutoIP address location
 autoip.json?geo_ip=38.102.136.138	specific IP address location
 
+The script writes CSV file wu.csv with the following fields:
+
+1. current time
+2. observation time (as reported by API)
+3. temperature in C (as reported by API)
+
 """
 
 import json
@@ -27,48 +33,23 @@ import sys
 import logging
 import time,datetime
 import string
-import urllib2
+import urllib2,urllib
 import getopt
 
 
 API_ENDPOINT="http://api.wunderground.com/api/%s/conditions/q/%s.json"
 CFG_FILE="wu.cfg"
-COSM_LOGFILE="cosm.log"
-MAX_DATAPOINTS=490 # Max number of datapoints per post. COSM limit is 500
-DATA_FILE = 'data_collector.csv'
+WU_LOGFILE="wu.log"
+DATA_FILE = 'wu.csv'
 
 def usage():
     print """
 %s [-c] [-d]
 
 -c -- log to console instead of log file
--d -- debug, dry-run mode. No data submitted, watermarks not modified.
+-d -- debug, dry-run mode. No data written
 
 """  % sys.argv[0]
-
-def read_watermark(watermark_fname):
-    log.info("Reading watermark file %s" % watermark_fname)
-    try:
-        f=open(watermark_fname,"r")
-        try:
-            cfg = json.load(f)
-            return cfg["maxtime"]
-        finally:
-            f.close()
-    except:
-        log.warning("Error reading watermark file %s. Assuming 0" % watermark_fname)
-        return 0
-
-def write_watermark(watermark_fname,w):
-    global debug_mode
-    if debug_mode:
-        return
-    log.info("Writing watermark file %s with value %s" % (watermark_fname,w))
-    f=open(watermark_fname,"w")
-    try:
-        json.dump({"maxtime":w},f)
-    finally:
-        f.close()
 
 def read_config(cfg_fname):
     log.info("Reading config file %s" % cfg_fname)
@@ -77,20 +58,6 @@ def read_config(cfg_fname):
         return json.load(f)
     finally:
         f.close()
-
-def submit_datapoints(feed,datastream,key,csv):
-    if len(csv)==0:
-        return
-    log.debug("Writing %s bytes to %s/%s" % (len(csv),feed,datastream))
-    if debug_mode:
-        log.debug(csv)
-        return
-    opener = urllib2.build_opener(urllib2.HTTPHandler)
-    request = urllib2.Request("http://api.cosm.com/v2/feeds/%s/datastreams/%s/datapoints.csv" % (feed,datastream), csv)
-    request.add_header('Host','api.cosm.com')
-    request.add_header('Content-type','text/csv')
-    request.add_header('X-ApiKey', key)
-    url = opener.open(request)
 
 def main():
     global log
@@ -124,7 +91,7 @@ def main():
         logging.basicConfig(level=log_level, format=log_format)
     else:
         logging.basicConfig(level=log_level, format=log_format,
-                            filename=COSM_LOGFILE, filemode='a')
+                            filename=WU_LOGFILE, filemode='a')
     log = logging.getLogger('default')
 
     try:
@@ -133,54 +100,42 @@ def main():
         log.error("Error reading config file %s" % CFG_FILE)
         sys.exit(1)
         
-    feed = cfg["feed"]
     key  = cfg["key"]
-    log.info("Using feed %s" % feed)
-    watermark = read_watermark(WATERMARK_FILE % feed)
-    log.info("Using watermark %s" % watermark)
+    query = cfg["location"]
+    log.info("Using query %s" % query)
 
-    f=open(DATA_FILE,"r")
     try:
-        temps={}
-        volts={}
-        n={}
-        for l in f:
-            c = string.strip(l).split(",")
-            w=float(c[0])
-            if w>watermark:
-                #  ISO 8601 date
-                ts = datetime.datetime.utcfromtimestamp(int(w)).isoformat('T')+"Z"
-                t = c[4] # temp
-                v = c[5] # volts
-                ch = int(c[1]) # channel
-                if not (ch in n):
-                    n[ch]=0
-                    volts[ch]=""
-                    temps[ch]=""
-                temps[ch]+=string.join([ts,t],",") + "\r\n"
-                volts[ch]+=string.join([ts,v],",")+ "\r\n"
-                n[ch]+=1
-                if n[ch]==MAX_DATAPOINTS:
-                    for ch in n:
-                        submit_datapoints(feed,ch,key,temps[ch])
-                        # Voltage datastream is 100+temp datasteam
-                        submit_datapoints(feed,ch+100,key,volts[ch])
-                    write_watermark(WATERMARK_FILE % feed,w)
-                    watermark = w
-                    temps={}
-                    volts={}
-                    n={}
+        f = urllib2.urlopen(API_ENDPOINT % (urllib.quote_plus(key), urllib.quote_plus(query)))
+        try:
+            json_string = f.read()
+            parsed_json = json.loads(json_string)
+            local_time= time.time()
+            observation_time = int(parsed_json['current_observation']['observation_epoch'])
+            temp_c = parsed_json['current_observation']['temp_c']
+            log.info("Current temperature is: %s" % temp_c)
+        except:
+            log.error("Error fetching data from API")
+            sys.exit(1)
+        finally:
+            f.close()
+    except:
+        log.error("Error fetching connecting to API")
+        sys.exit(1)
 
-        for ch in n:
-            submit_datapoints(feed,ch,key,temps[ch])
-            # Voltage datastream is 100+temp datasteam
-            submit_datapoints(feed,ch+100,key,volts[ch])
-        write_watermark(WATERMARK_FILE % feed,w)
-            
-    finally:
-        f.close()
+    csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
 
-
+    if debug_mode:
+        print csv_report
+    else:
+        data_file = file(DATA_FILE, 'a')
+        try:
+            data_file.write(csv_report)
+            data_file.flush()
+        except:
+            log.error("Error writing cfg file")
+            sys.exit(1)
+        finally:
+            data_file.close();
 
 if __name__ == '__main__':
     main()
