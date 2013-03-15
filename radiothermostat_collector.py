@@ -110,9 +110,9 @@ def main():
     log = logging.getLogger('default')
 
     try:
-        cfg=read_config(cfg_fname)
-    except:
-        log.error("Error reading config file %s" % cfg_fname)
+        cfg = read_config(cfg_fname)
+    except Exception, ex:
+        log.error("Error reading config file %s" % ex)
         sys.exit(1)
         
     ip  = cfg["IP"]
@@ -156,13 +156,13 @@ def main():
                     else:
                         s+=" HVAC is cooling."
                     log.info(s)
-                except:
-                    log.error("Error fetching data from API" + str(sys.exc_info()[0]))
+                except Exception, ex:
+                    log.error("Error fetching data from API: %s" % ex)
                     sys.exit(1)
                 finally:
                     f.close()
-            except:
-                log.error("Error fetching connecting to API: " +  str(sys.exc_info()[0]))
+            except Exception, ex:
+                log.error("Error fetching connecting to API: %s" %ex)
                 next
 
             csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
@@ -174,9 +174,9 @@ def main():
                 try:
                     data_file.write(csv_report)
                     data_file.flush()
-                except:
+                except IOError, ex:
                     # Error writing CSV is fatal
-                    log.error("Error writing cfg file")
+                    log.error("Error writing CSV file: %s" % ex)
                     sys.exit(1)
                     
                 # Send to COSM
@@ -190,9 +190,9 @@ def main():
                         try:
                             cosm_report =string.join([ts,str(data[ds])],",") + "\r\n"
                             cosm.submit_datapoints(cosm_feed,ds,cosm_key,cosm_report)
-                        except:
-                            # Error sending to cosm is non-fatal, but logged anyway
-                            log.error("Error sending to COSM datastream %s" % ds)
+                        except Exception, ex:
+                            # Error sending to COSM is non-fatal, but logged
+                            log.warning("Error sending to COSM datastream %s. %s" % (ds,ex))
 
             if sleep_time>0:
                 time.sleep(sleep_time)

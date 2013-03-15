@@ -120,8 +120,8 @@ def main():
 
         try:
             cfg = read_config(cfg_fname)
-        except:
-            log.error("Error reading config file %s" % cfg_fname)
+        except Exception, ex:
+            log.error("Error reading config file %s" % ex)
             sys.exit(1)
 
         print 'Using serial port %s' % port
@@ -166,16 +166,19 @@ def main():
                     time.time(), pkt.address, radc0, radc1, temp_C, battery_V*1000.0)
 
                 if not debug_mode:
-                    data_file.write(csv_report)
-                    data_file.flush()
+                    try:
+                        data_file.write(csv_report)
+                        data_file.flush()
+                    except IOError, ex:
+                        log.error("Error writing CSV file: %s" % ex)
                     
             except IndexError, e:
                 # I get this from pkt.get_adc() when packet is broken
                 log.error('Broken XBee packet: "{0}"'.format(pkt))
 
 
-    except serial.SerialException,e:
-        print e
+    except serial.SerialException, ex:
+        log.debug("Serial error %s" % ex)
 
 if __name__ == '__main__':
     main()

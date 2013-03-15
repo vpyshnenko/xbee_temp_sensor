@@ -118,9 +118,9 @@ def main():
     log = logging.getLogger('default')
 
     try:
-        cfg=read_config(cfg_fname)
-    except:
-        log.error("Error reading config file %s" % cfg_fname)
+        cfg = read_config(cfg_fname)
+    except Exception, ex:
+        log.error("Error reading config file %s" % ex)
         sys.exit(1)
         
     key  = cfg["key"]
@@ -147,12 +147,12 @@ def main():
                     observation_time = int(parsed_json['current_observation']['observation_epoch'])
                     temp_c = parsed_json['current_observation']['temp_c']
                     log.info("Current temperature is: %s" % temp_c)
-                except:
-                    log.error("Error fetching data from API")
+                except Exception, ex:
+                    log.error("Error fetching data from API: %s" %ex)
                     sys.exit(1)
                 finally:
                     f.close()
-            except:
+            except Exception, ex:
                 log.error("Error fetching connecting to API")
                 next
 
@@ -165,9 +165,9 @@ def main():
                 try:
                     data_file.write(csv_report)
                     data_file.flush()
-                except:
+                except IOError, ex:
                     # Error writing CSV is fatal
-                    log.error("Error writing cfg file")
+                    log.error("Error writing CSV file: %s" % ex)
                     sys.exit(1)
                 # Send to COSM
                 if cfg.has_key("cosm"):
@@ -175,9 +175,9 @@ def main():
                         ts = datetime.datetime.utcfromtimestamp(int(local_time)).isoformat('T')+"Z"
                         cosm_report =string.join([ts,str(temp_c)],",") + "\r\n"
                         cosm.submit_datapoints(cosm_feed,cosm_datastream,cosm_key,cosm_report)
-                    except:
+                    except Exception, ex:
                         # Error sending to cosm is non-fatal, but logged anyway
-                        log.error("Error sending to COSM")
+                        log.error("Error sending to COSM: %s" % ex )
 
             if sleep_time>0:
                 time.sleep(sleep_time)

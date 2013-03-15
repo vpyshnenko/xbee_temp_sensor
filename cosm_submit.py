@@ -45,8 +45,8 @@ def read_watermark(watermark_fname):
             return cfg["maxtime"]
         finally:
             f.close()
-    except:
-        log.warning("Error reading watermark file %s. Assuming 0" % watermark_fname)
+    except Exception, ex:
+        log.warning("Error reading watermark file %s. Assuming 0. %ex" % (watermark_fname,ex))
         return 0
 
 def write_watermark(watermark_fname,w):
@@ -109,9 +109,9 @@ def main():
     log = logging.getLogger('default')
 
     try:
-        cfg=read_config(cfg_fname)
-    except:
-        log.error("Error reading config file %s" % cfg_fname)
+        cfg = read_config(cfg_fname)
+    except Exception, ex:
+        log.error("Error reading config file %s" % ex)
         sys.exit(1)
         
     feed = cfg["feed"]
