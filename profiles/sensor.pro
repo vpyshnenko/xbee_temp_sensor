@@ -8,7 +8,7 @@ FE
 [A]ID=3332
 [A]DH=0
 [A]DL=0
-[A]MY=0
+[A]MY=1
 [A]MM=0
 [A]RR=0
 [A]RN=0
@@ -24,7 +24,7 @@ FE
 [A]PL=4
 [A]CA=2C
 [A]SM=4
-[A]ST=1388
+[A]ST=300
 [A]SP=200
 [A]DP=3E8
 [A]SO=0
@@ -39,7 +39,7 @@ FE
 [A]D4=0
 [A]D3=0
 [A]D2=0
-[A]D1=5
+[A]D1=2
 [A]D0=2
 [A]PR=FF
 [A]IU=1
