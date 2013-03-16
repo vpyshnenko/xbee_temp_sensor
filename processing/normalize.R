@@ -26,4 +26,16 @@ for(s in sensors_ids) {
 rm(s,sname)
 rm(data_collector_raw)
 
+# Find start and end times of all time series
+start_times <- NULL
+end_times <- NULL
+for(s in all_series) {
+  start_times <- c(start_times,min(s[,1]))
+  end_times <- c(end_times,max(s[,1]))  
+}
+
+# find intersection
+start_time <- max(start_times)
+end_time <- min(end_times)
+
 
