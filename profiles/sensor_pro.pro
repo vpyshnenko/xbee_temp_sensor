@@ -8,7 +8,7 @@ FE
 [A]ID=3332
 [A]DH=0
 [A]DL=0
-[A]MY=2
+[A]MY=4
 [A]MM=0
 [A]RR=0
 [A]RN=0
