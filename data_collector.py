@@ -124,7 +124,7 @@ def main():
             log.error("Error reading config file %s" % ex)
             sys.exit(1)
 
-        print 'Using serial port %s' % port
+        log.info('Using serial port %s' % port)
 
         s = serial.serialposix.Serial(port=port,
                                       baudrate=9600, bytesize=8, parity='N', stopbits=1,
@@ -158,7 +158,7 @@ def main():
                 battery_V = get_battery_from_adc(adc1,battery_k)/1000.0
                 temp_C = tmp36.get_t_from_adc(adc0)
 
-                log.debug('A={0} T={1:.1f}C V={2:.3f}V'.format(
+                log.info('A={0} T={1:.1f}C V={2:.3f}V'.format(
                     pkt.address,
                     temp_C, battery_V))
 
