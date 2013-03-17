@@ -157,12 +157,12 @@ def main():
                         s+=" HVAC is cooling."
                     log.info(s)
                 except Exception, ex:
-                    log.error("Error fetching data from API: %s" % ex)
+                    log.error("Error fetching data from API: %s" % ex, exc_info=True)
                     next
                 finally:
                     f.close()
-            except Exception, ex:
-                log.error("Error fetching connecting to API: %s" %ex)
+            except Exception, ex
+                log.error("Error connecting to API: %s" %ex, exc_info=True)
                 next
 
             csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
