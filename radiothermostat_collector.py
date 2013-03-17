@@ -161,7 +161,7 @@ def main():
                     next
                 finally:
                     f.close()
-            except Exception, ex
+            except Exception, ex:
                 log.error("Error connecting to API: %s" %ex, exc_info=True)
                 next
 
