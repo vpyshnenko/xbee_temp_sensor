@@ -48,7 +48,7 @@ from urllib import quote_plus
 import getopt
 
 import cosm
-from rest_json_helper import json_REST
+from rest_json_helper import json_GET
 
 
 API_ENDPOINT="http://api.wunderground.com/api/%s/conditions/q/%s.json"
@@ -142,8 +142,8 @@ def main():
     try:
         while True:
             try:
-                parsed_json = json_REST(API_ENDPOINT % (quote_plus(key), quote_plus(query)),
-                                        None, API_TIMEOUT)
+                parsed_json = json_GET(API_ENDPOINT % (quote_plus(key), quote_plus(query)),
+                                        API_TIMEOUT)
                 local_time= time.time()
                 observation_time = int(parsed_json['current_observation']['observation_epoch'])
                 temp_c = parsed_json['current_observation']['temp_c']

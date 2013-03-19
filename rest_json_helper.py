@@ -11,12 +11,19 @@ See https://github.com/vzaliva/xbee_temp_sensor/issues/1 for details.
 
 import urllib2
 import json
+import subprocess
 
-def json_REST(endpoint, body, timeout):
-    f = urllib2.urlopen(endpoint, body, timeout)
-    try:
-        json_string = f.read()
-        return json.loads(json_string)
-    finally:
-        f.close()
+USE_URLLIB2 = False
+
+def json_GET(endpoint, timeout):
+    if USE_URLLIB2:
+        f = urllib2.urlopen(endpoint, body, timeout)
+        try:
+            json_string = f.read()
+        finally:
+            f.close()
+    else:
+        json_string = subprocess.check_output(["curl", "-s", "-connect-timeout=%d" %timeout, endpoint])
+    return json.loads(json_string)
+        
  

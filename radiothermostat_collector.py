@@ -40,8 +40,7 @@ import string
 import getopt
 
 import cosm
-from rest_json_helper import json_REST
-
+from rest_json_helper import json_GET
 
 API_ENDPOINT="http://%s/tstat"
 CFG_FILE="radiothermostat.cfg"
@@ -135,7 +134,7 @@ def main():
     try:
         while True:
             try:
-                parsed_json = json_REST(API_ENDPOINT % ip, None, API_TIMEOUT)
+                parsed_json = json_GET(API_ENDPOINT % ip, API_TIMEOUT)
                 local_time= time.time()
                 temp_f = float(parsed_json['temp'])
                 temp_c = (temp_f-32.0)*5.0/9.0
