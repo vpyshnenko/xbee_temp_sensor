@@ -44,15 +44,18 @@ import sys
 import logging
 import time,datetime
 import string
-import urllib2,urllib
+from urllib import quote_plus
 import getopt
+
 import cosm
+from rest_json_helper import json_REST
 
 
 API_ENDPOINT="http://api.wunderground.com/api/%s/conditions/q/%s.json"
 CFG_FILE="wu.cfg"
 WU_LOGFILE="wu.log"
 DATA_FILE = 'wu.csv'
+API_TIMEOUT=5
 
 def usage():
     print """
@@ -131,7 +134,7 @@ def main():
         cosm_feed = cfg["cosm"]["feed"]
         cosm_key  = cfg["cosm"]["key"]
         cosm_datastream  = cfg["cosm"]["datastream"]
-        log.debug("Will log to COSM %s/%s", (cosm_feed,cosm_datastream))
+        log.debug("Will log to COSM %s/%s" % (cosm_feed, cosm_datastream))
     
     if not debug_mode:
         data_file = file(data_fname, 'a')
@@ -139,22 +142,15 @@ def main():
     try:
         while True:
             try:
-                f = urllib2.urlopen(API_ENDPOINT % (urllib.quote_plus(key), urllib.quote_plus(query)))
-                try:
-                    json_string = f.read()
-                    parsed_json = json.loads(json_string)
-                    local_time= time.time()
-                    observation_time = int(parsed_json['current_observation']['observation_epoch'])
-                    temp_c = parsed_json['current_observation']['temp_c']
-                    log.info("Current temperature is: %s" % temp_c)
-                except Exception, ex:
-                    log.error("Error fetching data from API: %s" %ex)
-                    sys.exit(1)
-                finally:
-                    f.close()
+                parsed_json = json_REST(API_ENDPOINT % (quote_plus(key), quote_plus(query)),
+                                        None, API_TIMEOUT)
+                local_time= time.time()
+                observation_time = int(parsed_json['current_observation']['observation_epoch'])
+                temp_c = parsed_json['current_observation']['temp_c']
+                log.info("Current temperature is: %s" % temp_c)
             except Exception, ex:
-                log.error("Error fetching connecting to API")
-                next
+                log.error("Error fetching data from API: %s" %ex)
+                continue
 
             csv_report = '{0},{1},{2}\n'.format(local_time,observation_time,temp_c)
 

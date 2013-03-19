@@ -28,6 +28,8 @@ Additionaly, config file might contain following fields
 If they present, it will additionally submit data to COSM.com to specified
 feed and datastreams.
 
+NOTE: Radiothermostat allows 1 API connection at a time!
+
 """
 
 import json
@@ -35,9 +37,10 @@ import sys
 import logging
 import time,datetime
 import string
-import urllib2,urllib
 import getopt
+
 import cosm
+from rest_json_helper import json_REST
 
 
 API_ENDPOINT="http://%s/tstat"
@@ -132,38 +135,30 @@ def main():
     try:
         while True:
             try:
-                f = urllib2.urlopen(API_ENDPOINT % ip, None, API_TIMEOUT)
-                try:
-                    json_string = f.read()
-                    parsed_json = json.loads(json_string)
-                    local_time= time.time()
-                    temp_f = float(parsed_json['temp'])
-                    temp_c = (temp_f-32.0)*5.0/9.0
-                    temp_cs = "{:.1f}".format(temp_c)
-                    tstate = int(parsed_json['tstate'])
-                    fstate = int(parsed_json['fstate'])
-                    if tstate==2:
-                        tstate=-1
-                    s = "Current temperature is: " + temp_cs
-                    if fstate:
-                        s+=" Fan in ON."
-                    else:
-                        s+=" Fan in OFF."
-                    if tstate==0:
-                        s+=" HVAC is OFF."
-                    elif tstate==1:
-                        s+=" HVAC is heating."
-                    else:
-                        s+=" HVAC is cooling."
-                    log.info(s)
-                except Exception, ex:
-                    log.error("Error fetching data from API: %s" % ex, exc_info=True)
-                    next
-                finally:
-                    f.close()
+                parsed_json = json_REST(API_ENDPOINT % ip, None, API_TIMEOUT)
+                local_time= time.time()
+                temp_f = float(parsed_json['temp'])
+                temp_c = (temp_f-32.0)*5.0/9.0
+                temp_cs = "{:.1f}".format(temp_c)
+                tstate = int(parsed_json['tstate'])
+                fstate = int(parsed_json['fstate'])
+                if tstate==2:
+                    tstate=-1
+                s = "Current temperature is: " + temp_cs
+                if fstate:
+                    s+=" Fan in ON."
+                else:
+                    s+=" Fan in OFF."
+                if tstate==0:
+                    s+=" HVAC is OFF."
+                elif tstate==1:
+                    s+=" HVAC is heating."
+                else:
+                    s+=" HVAC is cooling."
+                log.info(s)
             except Exception, ex:
-                log.error("Error connecting to API: %s" %ex)
-                next
+                log.error("Error fetching data from API: %s" % ex, exc_info=True)
+                continue
 
             csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
 
