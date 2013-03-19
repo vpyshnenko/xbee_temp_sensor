@@ -167,10 +167,7 @@ def main():
 
             csv_report = '{0},{1:.3f},{2},{3}\n'.format(local_time,temp_c,tstate,fstate)
 
-            if debug_mode:
-                print csv_report
-            else:
-                # Write to file
+            if not debug_mode:
                 try:
                     data_file.write(csv_report)
                     data_file.flush()
