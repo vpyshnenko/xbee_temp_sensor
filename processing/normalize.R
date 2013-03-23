@@ -53,7 +53,9 @@ start_time <- max(start_times)
 end_time <- min(end_times)
 
 # resampling
-new_ts<-seq(start_time,end_time,length.out=1000)
+library("playwith")
+RESAMPLING_STEP=60
+new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
 new_s1<-interp1(all_series$sensor1[,1],all_series$sensor1[,2],new_ts,method="spline")
 plot(all_series$sensor1,col="black")
 lines(new_ts,new_s1,type="l",col="red")
