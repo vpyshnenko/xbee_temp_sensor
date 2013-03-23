@@ -1,4 +1,4 @@
-library(zoo)
+library(signal)
 
 # Load raw datasets
 data_collector_raw <- read.csv("../data_collector.csv", header=F)
@@ -18,6 +18,8 @@ rm(radiothermostat_raw)
 
 sensors_ids = unique(data_collector_raw[[2]])
 for(s in sensors_ids) {
+  if(s==0)
+    continue; # ID0 is reserved for server
   sname <- paste("sensor",s,sep="");
   all_series[[sname]] <-
     cbind(data_collector_raw[data_collector_raw[2]==s,1],data_collector_raw[data_collector_raw[2]==s,5]);
@@ -38,4 +40,8 @@ for(s in all_series) {
 start_time <- max(start_times)
 end_time <- min(end_times)
 
-
+# resampling
+new_ts<-seq(start_time,end_time,length.out=1000)
+new_s1<-interp1(all_series$sensor1[,1],all_series$sensor1[,2],new_ts,method="spline")
+plot(new_ts,new_s1,type="l")
+lines(all_series$sensor1,col="red")
