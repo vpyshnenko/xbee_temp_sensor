@@ -55,5 +55,5 @@ end_time <- min(end_times)
 # resampling
 new_ts<-seq(start_time,end_time,length.out=1000)
 new_s1<-interp1(all_series$sensor1[,1],all_series$sensor1[,2],new_ts,method="spline")
-plot(new_ts,new_s1,type="l")
-lines(all_series$sensor1,col="red")
+plot(all_series$sensor1,col="black")
+lines(new_ts,new_s1,type="l",col="red")
