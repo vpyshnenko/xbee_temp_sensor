@@ -1,4 +1,5 @@
 library(signal)
+library("playwith")
 
 # Remove outliers from a series of observations.
 # We use Chauvenet's criterion to remove outlier rows based on observation
@@ -30,7 +31,7 @@ rm(radiothermostat_raw)
 sensors_ids = unique(data_collector_raw[[2]])
 for(s in sensors_ids) {
   if(s==0)
-    continue; # ID0 is reserved for server
+    next; # ID0 is reserved for server
   sname <- paste("sensor",s,sep="");
   all_series[[sname]] <-remove_outliers(
     cbind(data_collector_raw[data_collector_raw[2]==s,1],data_collector_raw[data_collector_raw[2]==s,5]),
@@ -53,9 +54,17 @@ start_time <- max(start_times)
 end_time <- min(end_times)
 
 # resampling
-library("playwith")
 RESAMPLING_STEP=60
 new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
-new_s1<-interp1(all_series$sensor1[,1],all_series$sensor1[,2],new_ts,method="spline")
-plot(all_series$sensor1,col="black")
-lines(new_ts,new_s1,type="l",col="red")
+
+resample_ts <- function(new_ts,xy,method)
+{
+  interp1(xy[,1],xy[,2],new_ts,method="spline")
+}
+
+#resample_ts(new_ts,all_series$sensor1,"spline")
+
+#plot(all_series$sensor1,col="black")
+#lines(new_ts,new_s1,type="l",col="red")
+#playwith(plot(new_ts,new_s1,type="l",col="red"))
+
