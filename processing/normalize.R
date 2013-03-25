@@ -57,14 +57,26 @@ end_time <- min(end_times)
 RESAMPLING_STEP=60
 new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
 
-resample_ts <- function(new_ts,xy,method)
+resample_ts <- function(new_ts,xy,c=2,m="spline")
 {
-  interp1(xy[,1],xy[,2],new_ts,method="spline")
+  interp1(xy[,1],xy[,c],new_ts,method=m)
 }
 
-#resample_ts(new_ts,all_series$sensor1,"spline")
+temps = cbind(
+  resample_ts(new_ts,all_series$sensor1),
+  resample_ts(new_ts,all_series$sensor2),
+  resample_ts(new_ts,all_series$sensor3),
+  resample_ts(new_ts,all_series$sensor4),
+  resample_ts(new_ts,all_series$sensor5),
+  resample_ts(new_ts,all_series$wu),
+  resample_ts(new_ts,all_series$radiothermostat)
+)
 
-#plot(all_series$sensor1,col="black")
-#lines(new_ts,new_s1,type="l",col="red")
-#playwith(plot(new_ts,new_s1,type="l",col="red"))
+ac_state = cbind(
+  resample_ts(new_ts,all_series$radiothermostat,3,"nearest"),
+  resample_ts(new_ts,all_series$radiothermostat,4,"nearest")
+)
 
+#matplot(new_ts,temps,type="l")
+#matplot(new_ts,ac_state,type="l")
+playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
