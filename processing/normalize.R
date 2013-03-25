@@ -62,21 +62,36 @@ resample_ts <- function(new_ts,xy,c=2,m="spline")
   interp1(xy[,1],xy[,c],new_ts,method=m)
 }
 
+smooth_ts <- function(new_ts,y)
+{
+  lowess(new_ts,y,
+         10/length(new_ts),
+         100,
+         1E-16)$y
+}
+
+# Temperature measurements, smoothed and resampled
 temps = cbind(
-  resample_ts(new_ts,all_series$sensor1),
-  resample_ts(new_ts,all_series$sensor2),
-  resample_ts(new_ts,all_series$sensor3),
-  resample_ts(new_ts,all_series$sensor4),
-  resample_ts(new_ts,all_series$sensor5),
-  resample_ts(new_ts,all_series$wu),
-  resample_ts(new_ts,all_series$radiothermostat)
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor1)),
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor2)),
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor3)),
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor4)),
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor5)),
+  resample_ts(new_ts,all_series$wu), # WU is already smoothed
+  smooth_ts(new_ts,resample_ts(new_ts,all_series$radiothermostat))
 )
 
+# Discrete temperature state (rounded to degrees)
+temp_state=round(temps)
+
+# discrete A/C state: 
+# column 1 is HVAC: 0:OFF,1:HEAT,-1:COOL
+# column 2 is FAN: 0:OFF, 1:ON
 ac_state = cbind(
   resample_ts(new_ts,all_series$radiothermostat,3,"nearest"),
   resample_ts(new_ts,all_series$radiothermostat,4,"nearest")
 )
 
-#matplot(new_ts,temps,type="l")
-#matplot(new_ts,ac_state,type="l")
 playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
+playwith(matplot(new_ts,cbind(temp_state,max(temp_state)*ac_state),type="l"))
+
