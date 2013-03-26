@@ -31,5 +31,10 @@ pgm1 <- ug(
            c("hvac","s5"),
            c("hvac","st")
 )
-plot(pgm1)
-#plot(as(pgm1,"igraph"), layout=layout.spring)
+#plot(pgm1)
+ipgm1=as(pgm1,"igraph")
+
+V(ipgm1)$shape <- c("square","circle","square","circle","square","circle","square","circle","circle","square","circle","square","square","rectangle","rectangle")
+V(ipgm1)$color <- c("green","red","green","red","green","red","green","red","red","grey","red","grey","grey","blue","yellow")
+V(ipgm1)$curved <- rep(T,15)
+plot(as(ipgm1,"igraph"))
