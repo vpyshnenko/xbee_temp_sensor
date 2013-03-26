@@ -50,8 +50,8 @@ for(s in all_series) {
 }
 
 # find intersection
-start_time <- max(start_times)
-end_time <- min(end_times)
+start_time <- ceiling(max(start_times))
+end_time <- floor(min(end_times))
 
 # resampling
 RESAMPLING_STEP=60
@@ -81,9 +81,6 @@ temps = cbind(
   smooth_ts(new_ts,resample_ts(new_ts,all_series$radiothermostat))
 )
 
-# Discrete temperature state (rounded to degrees)
-temp_state=round(temps)
-
 # discrete A/C state: 
 # column 1 is HVAC: 0:OFF,1:HEAT,-1:COOL
 # column 2 is FAN: 0:OFF, 1:ON
@@ -92,6 +89,8 @@ ac_state = cbind(
   resample_ts(new_ts,all_series$radiothermostat,4,"nearest")
 )
 
-playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
-playwith(matplot(new_ts,cbind(temp_state,max(temp_state)*ac_state),type="l"))
+#playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
+
+write.table(cbind(new_ts,temps), file="temps.csv", sep=",", row.names=FALSE, col.names=c("t","t1","t2","t3","t4","t5","wu","tt"))
+write.table(cbind(new_ts,ac_state), file="ac_state.csv", sep=",", row.names=FALSE, col.names=c("t","hvac","fan"))
 
