@@ -1,0 +1,3 @@
+from,to,comment
+2000-01-01 22:30,2013-03-18 22:30,"Fixed thermostat reader potential hangups, real collection starts"
+2013-03-26 17:12,2013-03-27 09:09,"radio thermostat changed IP"

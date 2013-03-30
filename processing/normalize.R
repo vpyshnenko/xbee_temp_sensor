@@ -53,6 +53,9 @@ for(s in all_series) {
 start_time <- ceiling(max(start_times))
 end_time <- floor(min(end_times))
 
+# load exclusions
+#read.csv("exclude_ranges.csv", header=T)
+
 # resampling
 RESAMPLING_STEP=60
 new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
