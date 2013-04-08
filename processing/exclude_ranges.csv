@@ -1,3 +1,4 @@
 from,to,comment
 2000-01-01 22:30,2013-03-18 22:30,"Fixed thermostat reader potential hangups, real collection starts"
 2013-03-26 17:12,2013-03-27 09:09,"radio thermostat changed IP"
+2013-04-08 01:12:30,2013-04-08 08:52:31,"radio thermostat sending to COSM froze"
