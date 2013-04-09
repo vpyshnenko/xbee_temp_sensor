@@ -54,7 +54,16 @@ start_time <- ceiling(max(start_times))
 end_time <- floor(min(end_times))
 
 # load exclusions
-#read.csv("exclude_ranges.csv", header=T)
+exclude_ranges_raw<-read.csv("exclude_ranges.csv", header=T)
+exclude_ranges <- NULL
+for(i in 1:nrow(exclude_ranges_raw))
+{
+  exclude_ranges<-rbind(exclude_ranges,
+    c(as.POSIXct(exclude_ranges_raw[[i,1]]),
+      as.POSIXct(exclude_ranges_raw[[i,2]])))
+}
+colnames(exclude_ranges)<-c("from","to")
+rm(exclude_ranges_raw)
 
 # resampling
 RESAMPLING_STEP=60
