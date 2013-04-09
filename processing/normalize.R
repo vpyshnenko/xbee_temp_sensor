@@ -52,8 +52,10 @@ for(s in all_series) {
 # find intersection
 start_time <- ceiling(max(start_times))
 end_time <- floor(min(end_times))
+rm(start_times,end_times)
 
-# load exclusions
+# load exclusions. We assume they are stored in increasing time order
+# and are non-overlapping.
 exclude_ranges_raw<-read.csv("exclude_ranges.csv", header=T)
 exclude_ranges <- NULL
 for(i in 1:nrow(exclude_ranges_raw))
@@ -62,8 +64,8 @@ for(i in 1:nrow(exclude_ranges_raw))
     c(as.POSIXct(exclude_ranges_raw[[i,1]]),
       as.POSIXct(exclude_ranges_raw[[i,2]])))
 }
+rm(i,exclude_ranges_raw)
 colnames(exclude_ranges)<-c("from","to")
-rm(exclude_ranges_raw)
 
 # resampling
 RESAMPLING_STEP=60
