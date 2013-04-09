@@ -67,6 +67,22 @@ for(i in 1:nrow(exclude_ranges_raw))
 rm(i,exclude_ranges_raw)
 colnames(exclude_ranges)<-c("from","to")
 
+# range inversion, from excludes to includes
+include_ranges <- NULL
+from <- start_time
+for(i in 1:nrow(exclude_ranges))
+{
+    to <- exclude_ranges[[i,1]]
+    if(from != to)
+    {
+      include_ranges<-rbind(include_ranges, c(from, to))
+    }
+    from <- exclude_ranges[i,2]
+}
+if(from<end_time)
+  include_ranges<-rbind(include_ranges, c(from, end_time))
+rm(from,to,exclude_ranges,i, start_time, end_time)
+
 # resampling
 RESAMPLING_STEP=60
 new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
