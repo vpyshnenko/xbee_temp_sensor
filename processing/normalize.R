@@ -61,8 +61,8 @@ exclude_ranges <- NULL
 for(i in 1:nrow(exclude_ranges_raw))
 {
   exclude_ranges<-rbind(exclude_ranges,
-    c(as.POSIXct(exclude_ranges_raw[[i,1]]),
-      as.POSIXct(exclude_ranges_raw[[i,2]])))
+    c(max(as.POSIXct(exclude_ranges_raw[[i,1]]),start_time),
+      min(as.POSIXct(exclude_ranges_raw[[i,2]]),end_time)))
 }
 rm(i,exclude_ranges_raw)
 colnames(exclude_ranges)<-c("from","to")
