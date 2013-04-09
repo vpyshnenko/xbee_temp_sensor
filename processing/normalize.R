@@ -83,9 +83,9 @@ if(from<end_time)
   include_ranges<-rbind(include_ranges, c(from, end_time))
 rm(from,to,exclude_ranges,i, start_time, end_time)
 
-# resampling
+
+# resampling, per interval
 RESAMPLING_STEP=60
-new_ts<-seq(start_time,end_time,RESAMPLING_STEP)
 
 resample_ts <- function(new_ts,xy,c=2,m="spline")
 {
@@ -100,24 +100,38 @@ smooth_ts <- function(new_ts,y)
          1E-16)$y
 }
 
-# Temperature measurements, smoothed and resampled
-temps = cbind(
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor1)),
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor2)),
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor3)),
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor4)),
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$sensor5)),
-  resample_ts(new_ts,all_series$wu), # WU is already smoothed
-  smooth_ts(new_ts,resample_ts(new_ts,all_series$radiothermostat))
-)
-
-# discrete A/C state: 
-# column 1 is HVAC: 0:OFF,1:HEAT,-1:COOL
-# column 2 is FAN: 0:OFF, 1:ON
-ac_state = cbind(
-  resample_ts(new_ts,all_series$radiothermostat,3,"nearest"),
-  resample_ts(new_ts,all_series$radiothermostat,4,"nearest")
-)
+temps <- NULL
+ac_state <- NULL
+new_ts <- NULL
+for(i in 1:nrow(include_ranges))
+{
+  start_time <- include_ranges[[i,1]]
+  end_time <- include_ranges[[i,2]]
+  inew_ts<-seq(start_time,end_time,RESAMPLING_STEP)
+  # Temperature measurements, smoothed and resampled
+  itemps <- cbind(
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$sensor1)),
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$sensor2)),
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$sensor3)),
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$sensor4)),
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$sensor5)),
+    resample_ts(inew_ts,all_series$wu), # WU is already smoothed
+    smooth_ts(inew_ts,resample_ts(inew_ts,all_series$radiothermostat))
+  )
+  temps <- rbind(temps, itemps)
+  
+  # discrete A/C state: 
+  # column 1 is HVAC: 0:OFF,1:HEAT,-1:COOL
+  # column 2 is FAN: 0:OFF, 1:ON
+  iac_state = cbind(
+    resample_ts(inew_ts,all_series$radiothermostat,3,"nearest"),
+    resample_ts(inew_ts,all_series$radiothermostat,4,"nearest")
+  )
+  ac_state <- rbind(ac_state,iac_state)
+  
+  new_ts<-c(new_ts,inew_ts)
+}
+rm(i,itemps,iac_state,inew_ts)
 
 #playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
 
