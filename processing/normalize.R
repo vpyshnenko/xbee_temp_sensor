@@ -1,5 +1,5 @@
 library(signal)
-library("playwith")
+#library("playwith")
 
 # Remove outliers from a series of observations.
 # We use Chauvenet's criterion to remove outlier rows based on observation
