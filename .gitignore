@@ -2,3 +2,11 @@
 nohup.out
 
 .Rproj.user
+
+.DS_Store
+
+*.cfg
+
+*.csv
+
+processing/.Rhistory
