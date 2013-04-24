@@ -1,4 +1,8 @@
 # Quick look at variable distributions.
 
 load(file="data.Rdata")
-hist(temps[,1])     
+par(mfrow=c(4,2))
+for(i in 1:ncol(temps))
+{
+  hist(temps[,i], main=paste("temp",i))
+}
