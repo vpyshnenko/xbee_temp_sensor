@@ -120,6 +120,7 @@ for(i in 1:nrow(include_ranges))
     smooth_ts(inew_ts,resample_ts(inew_ts,all_series$radiothermostat))
   )
   temps <- rbind(temps, itemps)
+  colnames(temps) <- c("sensor1","sensor2","sensor3","sensor4","sensor5","wu","radiothermostat")
   
   # discrete A/C state: 
   # column 1 is HVAC: 0:OFF,1:HEAT,-1:COOL
@@ -129,7 +130,7 @@ for(i in 1:nrow(include_ranges))
     resample_ts(inew_ts,all_series$radiothermostat,4,"nearest")
   )
   ac_state <- rbind(ac_state,iac_state)
-  
+  colnames(ac_state) <- c("hvac","fan")
   new_ts<-c(new_ts,inew_ts)
 }
 rm(i,itemps,iac_state,inew_ts)
@@ -138,4 +139,5 @@ rm(i,itemps,iac_state,inew_ts)
 
 write.table(cbind(new_ts,temps), file="temps.csv", sep=",", row.names=FALSE, col.names=c("t","t1","t2","t3","t4","t5","wu","tt"))
 write.table(cbind(new_ts,ac_state), file="ac_state.csv", sep=",", row.names=FALSE, col.names=c("t","hvac","fan"))
+save(new_ts,temps,ac_state,file="data.Rdata")
 

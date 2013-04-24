@@ -10,3 +10,5 @@ nohup.out
 *.csv
 
 processing/.Rhistory
+
+*.Rdata
