@@ -8,7 +8,8 @@ for(i in seq_along(dtemps))
 {
   plot(dtemps[[i]], main=paste("temp",i))
 }
-plot(dac_state[[1]], main=paste("A/C",i))
+rm(i)
+plot(dac_state[[1]], main="HVAC")
 
 # Print summary
 lapply(dtemps,summary)
