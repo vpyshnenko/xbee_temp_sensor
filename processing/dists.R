@@ -1,9 +1,14 @@
 # Quick look at variable distributions.
 
-load(file="data.Rdata")
+load(file="ddata.Rdata")
+
+# Plot
 par(mfrow=c(4,2))
-for(i in 1:ncol(temps))
+for(i in seq_along(dtemps))
 {
-  hist(temps[,i], main=paste("temp",i))
+  plot(dtemps[[i]], main=paste("temp",i))
 }
-hist(ac_state[,1], main=paste("A/C",i))
+plot(dac_state[[1]], main=paste("A/C",i))
+
+# Print summary
+lapply(dtemps,summary)

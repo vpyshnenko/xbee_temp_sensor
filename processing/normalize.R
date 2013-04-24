@@ -137,7 +137,16 @@ rm(i,itemps,iac_state,inew_ts)
 
 #playwith(matplot(new_ts,cbind(temps,max(temps)*ac_state),type="l"))
 
-write.table(cbind(new_ts,temps), file="temps.csv", sep=",", row.names=FALSE, col.names=c("t","t1","t2","t3","t4","t5","wu","tt"))
-write.table(cbind(new_ts,ac_state), file="ac_state.csv", sep=",", row.names=FALSE, col.names=c("t","hvac","fan"))
+write.table(cbind(new_ts,temps), file="temps.csv", sep=",", row.names=FALSE, col.names=c("t",colnames(temps)))
+write.table(cbind(new_ts,ac_state), file="ac_state.csv", sep=",", row.names=FALSE, col.names=c("t",colnames(ac_state)))
 save(new_ts,temps,ac_state,file="data.Rdata")
+
+# Discretize
+dtemps <- lapply(as.data.frame(round(temps)),factor)
+dac_state <- lapply(as.data.frame(round(ac_state)),factor)
+
+write.table(dtemps, file="dtemps.csv", sep=",", row.names=FALSE, col.names=colnames(temps))
+write.table(dac_state, file="dac_state.csv", sep=",", row.names=FALSE, col.names=colnames(ac_state))
+save(dtemps,dac_state,file="ddata.Rdata")
+
 
