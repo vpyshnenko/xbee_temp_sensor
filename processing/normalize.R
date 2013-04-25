@@ -145,8 +145,11 @@ save(new_ts,temps,ac_state,file="data.Rdata")
 dtemps <- lapply(as.data.frame(round(temps)),factor)
 dac_state <- lapply(as.data.frame(round(ac_state)),factor)
 
-write.table(dtemps, file="dtemps.csv", sep=",", row.names=FALSE, col.names=colnames(temps))
-write.table(dac_state, file="dac_state.csv", sep=",", row.names=FALSE, col.names=colnames(ac_state))
+# Write in CSV, R, and Matlab formats
+write.table(dtemps, file="dtemps.csv", sep=",", row.names=FALSE, col.names=colnames(temps),quote=FALSE)
+write.table(dac_state, file="dac_state.csv", sep=",", row.names=FALSE, col.names=colnames(ac_state),quote=FALSE)
 save(dtemps,dac_state,file="ddata.Rdata")
+#library(R.matlab)
+#writeMat("data.mat",dtemps=dtemps, dac_state=dac_state)
 
 
