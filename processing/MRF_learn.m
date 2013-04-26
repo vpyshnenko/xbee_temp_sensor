@@ -47,11 +47,11 @@ end
 w = zeros(nParams,1);
 suffStat = UGM_MRF_computeSuffStat(y,nodeMap,edgeMap,edgeStruct);
 
-moptions.tolFun = 1e-5;
+moptions.tolFun = 1e-7;
+%moptions.Method = 'scg';
 w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
     nodeMap,edgeMap, ...
     edgeStruct,@UGM_Infer_Exact);
-
 [nodePot,edgePot] = UGM_MRF_makePotentials(w,nodeMap,edgeMap,edgeStruct);
 
 
