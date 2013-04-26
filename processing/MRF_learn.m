@@ -36,15 +36,13 @@ nodeMap(1,1) = nParams;
 nEdges = edgeStruct.nEdges;
 edgeMap = zeros(maxState,maxState,nEdges,'int32');
 
-for i=1:nNodes
-    for j=i:nNodes
-        if adj(i,j)==1
-            nParams = nParams+1;
-            edgeMap(i,j,:) = nParams;
-            edgeMap(j,i,:) = nParams;
-        end
-    end
+for e=1:nEdges
+    i = edgeStruct.edgeEnds(e,1);
+    j = edgeStruct.edgeEnds(e,2);
+    nParams = nParams+1;
+    edgeMap(1:nStates(i),i:nStates(j),e) = nParams;
 end
+
 
 w = zeros(nParams,1);
 suffStat = UGM_MRF_computeSuffStat(y,nodeMap,edgeMap,edgeStruct);
