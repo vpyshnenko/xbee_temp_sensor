@@ -40,7 +40,7 @@ for e=1:nEdges
     i = edgeStruct.edgeEnds(e,1);
     j = edgeStruct.edgeEnds(e,2);
     nParams = nParams+1;
-    edgeMap(1:nStates(i),i:nStates(j),e) = nParams;
+    edgeMap(1:nStates(i),1:nStates(j),e) = nParams;
 end
 
 
