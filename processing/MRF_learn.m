@@ -18,6 +18,7 @@ adj = [0 1 0 1 ;
        0 0 0 1 ; 
        1 1 1 0 ];
 edgeStruct = UGM_makeEdgeStruct(adj, nStates);
+edgeStruct.useMex = 0;
 
 maxState = max(nStates);
 nParams = 0;
@@ -55,4 +56,11 @@ w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
 [nodePot,edgePot] = UGM_MRF_makePotentials(w,nodeMap,edgeMap,edgeStruct);
 
 
+% Optinal decoding
+optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
+
+% Get all of the unary and pairwise marginals 
+% (as well as the logarithm of the normalizing constant Z) using:
+
+[nodeBel,edgeBel,logZ] = UGM_Infer_Exact(nodePot,edgePot,edgeStruct)
 
