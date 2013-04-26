@@ -1,3 +1,7 @@
+
+clear all;
+addpath(genpath('~/lib/matlab/UGM'));
+
 dac_state = int32(csvread('dac_state.csv', 1));
 dtemps = int32(csvread('dtemps.csv', 1));
 
@@ -14,9 +18,34 @@ adj = [0 1 0 1 ;
 edgeStruct = UGM_makeEdgeStruct(adj,nStates);
 
 maxState = max(nStates);
+nParams = 0;
 
 nodeMap = zeros(nNodes,maxState,'int32');
-nodeMap(:,1) = 1;
+for i=1:nNodes
+    nParams = nParams+1;
+    nodeMap(i,:) = nParams;
+end
 
 nEdges = edgeStruct.nEdges;
 edgeMap = zeros(maxState,maxState,nEdges,'int32');
+
+for i=1:nNodes
+    for j=i:nNodes
+        if adj(i,j)==1
+            nParams = nParams+1;
+            edgeMap(i,j,:) = nParams; 
+            edgeMap(j,i,:) = nParams;
+        end
+    end
+end
+
+w = zeros(nParams,1);
+suffStat = UGM_MRF_computeSuffStat(y,nodeMap,edgeMap,edgeStruct);
+
+moptions.tolFun = 1e-5;
+w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
+    nodeMap,edgeMap, ...
+    edgeStruct,@UGM_Infer_Exact);
+
+
+
