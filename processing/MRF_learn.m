@@ -15,12 +15,12 @@ adj = [0 1 0 1 ;
        1 0 0 1 ; 
        0 0 0 1 ; 
        1 1 1 0 ];
-edgeStruct = UGM_makeEdgeStruct(adj,nStates);
+edgeStruct = UGM_makeEdgeStruct(adj, nStates);
 
 maxState = max(nStates);
 nParams = 0;
 
-nodeMap = zeros(nNodes,maxState,'int32');
+nodeMap = zeros(nNodes, maxState,'int32');
 for i=1:nNodes
     nParams = nParams+1;
     for j=1:nStates(i)
@@ -40,7 +40,7 @@ for i=1:nNodes
     for j=i:nNodes
         if adj(i,j)==1
             nParams = nParams+1;
-            edgeMap(i,j,:) = nParams; 
+            edgeMap(i,j,:) = nParams;
             edgeMap(j,i,:) = nParams;
         end
     end
