@@ -23,8 +23,14 @@ nParams = 0;
 nodeMap = zeros(nNodes,maxState,'int32');
 for i=1:nNodes
     nParams = nParams+1;
-    nodeMap(i,:) = nParams;
+    for j=1:nStates(i)
+        nodeMap(i,j) = nParams;
+    end
 end
+
+% Node 1 (HVAC) is special. It have 2 weights
+nParams = nParams+1;
+nodeMap(1,1) = nParams
 
 nEdges = edgeStruct.nEdges;
 edgeMap = zeros(maxState,maxState,nEdges,'int32');
@@ -46,6 +52,8 @@ moptions.tolFun = 1e-5;
 w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
     nodeMap,edgeMap, ...
     edgeStruct,@UGM_Infer_Exact);
+
+[nodePot,edgePot] = UGM_MRF_makePotentials(w,nodeMap,edgeMap,edgeStruct);
 
 
 
