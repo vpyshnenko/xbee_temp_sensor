@@ -56,11 +56,23 @@ w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
 [nodePot,edgePot] = UGM_MRF_makePotentials(w,nodeMap,edgeMap,edgeStruct);
 
 
-% Optinal decoding
-optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
+% ====================================================================
 
 % Get all of the unary and pairwise marginals 
 % (as well as the logarithm of the normalizing constant Z) using:
 
 [nodeBel,edgeBel,logZ] = UGM_Infer_Exact(nodePot,edgePot,edgeStruct)
+
+% Optimal decoding
+optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
+
+% Clamped decoding
+clamped = zeros(nNodes,1);
+clamped(1) = 2; % Heater ON
+%[nodeBel,edgeBel,logZ] = UGM_Infer_Conditional(nodePot,edgePot, ...
+%    edgeStruct,clamped,@UGM_Infer_Exact);
+edgeStruct.maxIter=1000;
+samples = UGM_Sample_Conditional(nodePot,edgePot, ...
+    edgeStruct,clamped,@UGM_Sample_Exact);
+
 
