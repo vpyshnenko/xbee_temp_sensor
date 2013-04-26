@@ -1,4 +1,6 @@
 
+% Using Markov Random Field to model 3 sensor and A/C
+
 clear all;
 addpath(genpath('~/lib/matlab/UGM'));
 
@@ -31,7 +33,6 @@ end
 % Node 1 (HVAC) is special. It have 2 weights
 nParams = nParams+1;
 nodeMap(1,1) = nParams;
-
 
 nEdges = edgeStruct.nEdges;
 edgeMap = zeros(maxState,maxState,nEdges,'int32');
