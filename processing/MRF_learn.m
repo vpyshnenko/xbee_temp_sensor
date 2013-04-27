@@ -99,12 +99,14 @@ for i=1:xsize
     y1(i) = v(b);
     
 end
+mina=min(unique(y(:,[a b])))
+maxa=max(unique(y(:,[a b])))
 plot(x,y0,'r');
+axis([ mina maxa mina maxa ])
 hold on;
 p=plot(x,y1,'g');
 xlabel(a)
 ylabel(b)
-
 
 saveas(p,sprintf('results/%d-%d.png',a,b)) 
 
