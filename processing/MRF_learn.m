@@ -12,6 +12,7 @@ clear dac_state;
 clear dtemps;
 
 [nInstances,nNodes] = size(y);
+
 nStates = max(y);
 adj = [0 1 0 1 ; 
        1 0 0 1 ; 
@@ -78,17 +79,18 @@ optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
 a = 2;
 b = 3;
 clamped = zeros(nNodes,1);
-x = zeros(nStates(a),1);
-y = zeros(nStates(a),1);
-y1 = zeros(nStates(a),1);
-for i=1:nStates(a)
-    x(i) = i;
-    clamped(a) = i;
+x = unique(y(:,a));
+xsize = size(x,1);
+y0 = zeros(xsize,1);
+y1 = zeros(xsize,1);
+for i=1:xsize
+    clamped(a) = x(i);
+    disp(x(i))
     % Heater ON
     clamped(1) = 2; 
     v = UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
         clamped,@UGM_Decode_Tree);
-    y(i) = v(b);
+    y0(i) = v(b);
     
     % Heater OFF
     clamped(1) = 1; 
@@ -97,7 +99,7 @@ for i=1:nStates(a)
     y1(i) = v(b);
     
 end
-plot(x,y,'r');
+plot(x,y0,'r');
 hold on;
 p=plot(x,y1,'g');
 xlabel(a)
