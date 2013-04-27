@@ -12,3 +12,5 @@ nohup.out
 processing/.Rhistory
 
 *.Rdata
+
+*.m~
