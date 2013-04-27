@@ -1,5 +1,5 @@
-
 % Using Markov Random Field to model 3 sensor and A/C
+% Requires http://www.di.ens.fr/~mschmidt/Software/UGM.html
 
 clear all;
 addpath(genpath('~/lib/matlab/UGM'));
