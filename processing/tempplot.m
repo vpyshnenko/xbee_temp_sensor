@@ -11,21 +11,21 @@ for i=1:xsize
     clamped(1) = 2; 
     v = UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
         clamped,@UGM_Decode_Tree);
-    y0(i) = v(b);
+    y0(i) = v(b)-1;
     
     % Heater OFF
     clamped(1) = 1; 
     v = UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
         clamped,@UGM_Decode_Tree);
-    y1(i) = v(b);
+    y1(i) = v(b)-1;
     
 end
 mina=min(unique(y(:,[a b])));
 maxa=max(unique(y(:,[a b])));
-plot(x,y0, 'red', 'LineWidth', 3);
+plot(x-1,y0, 'red', 'LineWidth', 3);
 axis([ mina maxa mina maxa ]);
 hold on;
-plot(x,y1,'green');
+plot(x-1,y1,'green');
 hold on;
 p=plot(mina:maxa,mina:maxa,'-.k');
 xlabel(a);

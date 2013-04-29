@@ -64,8 +64,8 @@ w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
 
 %[nodeBel,edgeBel,logZ] = UGM_Infer_Exact(nodePot,edgePot,edgeStruct)
 
-% Optimal decoding
-optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
+% Optimal decoding (in degrees)
+optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)-1
 
 % Clamped samping
 %clamped = zeros(nNodes,1);
