@@ -22,7 +22,7 @@ for i=1:xsize
 end
 mina=min(unique(y(:,[a b])));
 maxa=max(unique(y(:,[a b])));
-plot(x,y0,'red', 'LineWidth', 3);
+plot(x,y0, 'red', 'LineWidth', 3);
 axis([ mina maxa mina maxa ]);
 hold on;
 plot(x,y1,'green');

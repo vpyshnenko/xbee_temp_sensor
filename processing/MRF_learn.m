@@ -78,13 +78,13 @@ optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)
 % Plot optimal decoding for nodes states
 figure;
 p = tempplot(2,3,nNodes, y, nodePot, edgePot, edgeStruct);
-saveas(p,sprintf('results/%d-%d.png',2,3));
+saveas(p,sprintf('results/%d-%d.eps',2,3),'epsc');
 
 figure;
 p = tempplot(2,4,nNodes, y, nodePot, edgePot, edgeStruct);
-saveas(p,sprintf('results/%d-%d.png',2,4));
+saveas(p,sprintf('results/%d-%d.eps',2,4),'epsc');
 
 figure;
 p = tempplot(3,4,nNodes, y, nodePot, edgePot, edgeStruct);
-saveas(p,sprintf('results/%d-%d.png',3,4));
+saveas(p,sprintf('results/%d-%d.eps',3,4),'epsc');
 
