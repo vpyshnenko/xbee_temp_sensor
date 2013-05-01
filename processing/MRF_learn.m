@@ -98,12 +98,18 @@ for i=1:nNodes
     digits(3),latex(sym(nodePot(i,1:nStates(i)),'d'))    
 end
 
-% Print Edge potentials
+% Print and plot Edge potentials
 for e=1:nEdges
     a = edgeStruct.edgeEnds(e,1);
     b = edgeStruct.edgeEnds(e,2);
     ev=edgePot(1:nStates(a),1:1:nStates(b),e);
-    size(ev)
+    if a~=1 && b~=1
+       figure;
+       p=pcolor(log(ev));
+       xlabel(a);
+       ylabel(b);
+       saveas(p,sprintf('results/edgepot-%d-%d.eps',3,4),'epsc');
+    end
     digits(3),latex(sym(ev,'d'))
 end
 
