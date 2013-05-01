@@ -93,3 +93,18 @@ figure;
 p = tempplot(3,4, nNodes, y, yoffd, nodePot, edgePot, edgeStruct);
 saveas(p,sprintf('results/%d-%d.eps',3,4),'epsc');
 
+% Print Node potentials
+for i=1:nNodes
+    digits(3),latex(sym(nodePot(i,1:nStates(i)),'d'))    
+end
+
+% Print Edge potentials
+for e=1:nEdges
+    a = edgeStruct.edgeEnds(e,1);
+    b = edgeStruct.edgeEnds(e,2);
+    ev=edgePot(1:nStates(a),1:1:nStates(b),e);
+    size(ev)
+    digits(3),latex(sym(ev,'d'))
+end
+
+
