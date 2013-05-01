@@ -1,4 +1,4 @@
-function [ p ] = tempplot( a, b, nNodes, y, nodePot, edgePot, edgeStruct)
+function [ p ] = tempplot( a, b, nNodes, y, yoff, nodePot, edgePot, edgeStruct)
 %UNTITLED Plot two temperatures plots
 clamped = zeros(nNodes,1);
 x = unique(y(:,a));
@@ -9,23 +9,25 @@ for i=1:xsize
     clamped(a) = x(i);    
     % Heater ON
     clamped(1) = 2; 
-    v = UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
-        clamped,@UGM_Decode_Tree);
-    y0(i) = v(b)-1;
+    v = transpose(UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
+        clamped,@UGM_Decode_Tree))+yoff;
+    y0(i) = v(b);
     
     % Heater OFF
     clamped(1) = 1; 
-    v = UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
-        clamped,@UGM_Decode_Tree);
-    y1(i) = v(b)-1;
+    v = transpose(UGM_Decode_Conditional(nodePot,edgePot,edgeStruct, ...
+        clamped,@UGM_Decode_Tree))+yoff;
+    y1(i) = v(b);
     
 end
-mina=min(unique(y(:,[a b])));
-maxa=max(unique(y(:,[a b])));
-plot(x-1,y0, 'red', 'LineWidth', 3);
+yc=bsxfun(@plus,double(y),yoff);
+mina=min(unique(yc(:,[a b])));
+maxa=max(unique(yc(:,[a b])));
+xc = x+yoff(a);
+plot(xc,y0, 'red', 'LineWidth', 3);
 axis([ mina maxa mina maxa ]);
 hold on;
-plot(x-1,y1,'green');
+plot(xc,y1,'green');
 hold on;
 p=plot(mina:maxa,mina:maxa,'-.k');
 xlabel(a);

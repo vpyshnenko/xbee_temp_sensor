@@ -7,7 +7,10 @@ addpath(genpath('~/lib/matlab/UGM'));
 dac_state = int32(csvread('dac_state.csv', 1));
 dtemps = int32(csvread('dtemps.csv', 1));
 
-y = [dac_state(:,1), dtemps(:,[4 5 7])] + 1;
+y = [dac_state(:,1), dtemps(:,[4 5 7])];
+yoff = min(y)-1;
+y = bsxfun(@minus,y,yoff);
+
 clear dac_state;
 clear dtemps;
 
@@ -65,7 +68,9 @@ w = minFunc(@UGM_MRF_NLL,w,moptions,nInstances,suffStat, ...
 %[nodeBel,edgeBel,logZ] = UGM_Infer_Exact(nodePot,edgePot,edgeStruct)
 
 % Optimal decoding (in degrees)
-optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)-1
+optimalDecoding = transpose(UGM_Decode_Exact(nodePot,edgePot,edgeStruct));
+yoffd = double(yoff);
+optimalDecodingC = optimalDecoding + yoffd
 
 % Clamped samping
 %clamped = zeros(nNodes,1);
@@ -77,14 +82,14 @@ optimalDecoding = UGM_Decode_Exact(nodePot,edgePot,edgeStruct)-1
 
 % Plot optimal decoding for nodes states
 figure;
-p = tempplot(2,3,nNodes, y, nodePot, edgePot, edgeStruct);
+p = tempplot(2,3, nNodes, y, yoffd, nodePot, edgePot, edgeStruct);
 saveas(p,sprintf('results/%d-%d.eps',2,3),'epsc');
 
 figure;
-p = tempplot(2,4,nNodes, y, nodePot, edgePot, edgeStruct);
+p = tempplot(2,4, nNodes, y, yoffd, nodePot, edgePot, edgeStruct);
 saveas(p,sprintf('results/%d-%d.eps',2,4),'epsc');
 
 figure;
-p = tempplot(3,4,nNodes, y, nodePot, edgePot, edgeStruct);
+p = tempplot(3,4, nNodes, y, yoffd, nodePot, edgePot, edgeStruct);
 saveas(p,sprintf('results/%d-%d.eps',3,4),'epsc');
 
