@@ -108,7 +108,7 @@ for e=1:nEdges
        p=pcolor(log(ev));
        xlabel(a);
        ylabel(b);
-       saveas(p,sprintf('results/edgepot-%d-%d.eps',3,4),'epsc');
+       saveas(p,sprintf('results/edgepot-%d-%d.eps',a,b),'epsc');
     end
     digits(3),latex(sym(ev,'d'))
 end
